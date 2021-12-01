@@ -13,5 +13,19 @@
 		return $inc;
 	}
 
+	function part2($input, $size = 3) {
+		$inc = 0;
+		for ($i = $size; $i <= count($input); $i++) {
+			if (array_sum(array_slice($input, $i - 1 - $size, $size)) < array_sum(array_slice($input, $i - $size, $size))) {
+				$inc++;
+			}
+		}
+		return $inc;
+	}
+
+
 	$part1 = part1($input);
 	echo 'Part 1: ', $part1, "\n";
+
+	$part2 = part2($input);
+	echo 'Part 2: ', $part2, "\n";
