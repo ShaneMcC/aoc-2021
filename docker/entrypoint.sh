@@ -46,13 +46,16 @@ if [ ! -e "/code/${DAY}/${FILE}" ]; then
 	exit 1;
 fi;
 
-PHPCONFDIR="/etc/php*/conf.d/"
-if [ "${JIT}" = "1" ]; then
-	echo "opcache.enable_cli=1" > "${PHPCONFDIR}/01_jit.ini"
-	echo "opcache.jit_buffer_size=50M" >> "${PHPCONFDIR}/01_jit.ini"
-	echo "opcache.jit=tracing" >> "${PHPCONFDIR}/01_jit.ini"
-else
-	echo "" > "${PHPCONFDIR}/01_jit.ini"
+PHPCONFDIR=`ls -1d /etc/php*/conf.d | head -n 1`
+if [ -e "${PHPCONFDIR}/01_jit.ini" ]; then
+	if [ "${JIT}" = "1" ]; then
+		echo "${PHPCONFDIR}/01_jit.ini"
+		echo "opcache.enable_cli=1" > "${PHPCONFDIR}/01_jit.ini"
+		echo "opcache.jit_buffer_size=50M" >> "${PHPCONFDIR}/01_jit.ini"
+		echo "opcache.jit=tracing" >> "${PHPCONFDIR}/01_jit.ini"
+	else
+		echo "" > "${PHPCONFDIR}/01_jit.ini"
+	fi;
 fi;
 
 if [ "${TIME}" = "1" ]; then
