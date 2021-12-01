@@ -2,8 +2,8 @@ FROM alpine:edge
 
 ADD entrypoint.sh /entrypoint.sh
 
-RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing php7 php7-gmp bash && \
-    ln -sf /usr/bin/php7 /usr/bin/php && \
+RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing php81 php81-gmp php81-opcache bash && \
+    ln -sf /usr/bin/php81 /usr/bin/php && \
     chmod +x /entrypoint.sh && \
     chown -R nobody:nobody /entrypoint.sh
 

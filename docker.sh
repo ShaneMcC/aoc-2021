@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-BASEIMAGE=shanemcc/aoc-2020-05
+BASEIMAGE=shanemcc/aoc-2021-01
 BASEDOCKERFILE="Dockerfile"
 
 IMAGE=${BASEIMAGE}
@@ -12,7 +12,7 @@ SHELL="0";
 
 while true; do
 	case "$1" in
-		--php74|--php8|--php8-jit)
+		--php74|--php80|--php81)
 			IMAGE=${BASEIMAGE}-${1/--/}
 			DOCKERFILE=${BASEDOCKERFILE}-${1/--/}
 			;;
