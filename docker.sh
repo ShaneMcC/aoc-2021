@@ -20,7 +20,6 @@ while true; do
 			;;
 		*)
 			export VARIANT=$(echo "${1}" | sed 's/^--//' | sed 's/\///g')
-			echo ${VARIANT};
 			if [ -e "docker/${BASEDOCKERFILE}-${VARIANT}" ]; then
 				IMAGE=${BASEIMAGE}-${VARIANT}
 				DOCKERFILE=${BASEDOCKERFILE}-${VARIANT}
