@@ -12,10 +12,6 @@ SHELL="0";
 
 while true; do
 	case "$1" in
-		--php74|--php80|--php81)
-			IMAGE=${BASEIMAGE}-${1/--/}
-			DOCKERFILE=${BASEDOCKERFILE}-${1/--/}
-			;;
 		--build)
 			FORCEBUILD="1";
 			;;
@@ -23,7 +19,14 @@ while true; do
 			SHELL="1";
 			;;
 		*)
-			break;
+			export VARIANT=$(echo "${1}" | sed 's/^--//' | sed 's/\///g')
+			echo ${VARIANT};
+			if [ -e "docker/${BASEDOCKERFILE}-${VARIANT}" ]; then
+				IMAGE=${BASEIMAGE}-${VARIANT}
+				DOCKERFILE=${BASEDOCKERFILE}-${VARIANT}
+			else
+				break;
+			fi;
 			;;
 	esac
 	shift
