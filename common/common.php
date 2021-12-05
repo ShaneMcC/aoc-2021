@@ -263,6 +263,34 @@
 		if ($border) {  echo '┕', str_repeat('━', $width), '┙', "\n"; }
 	}
 
+	function drawSparseMap($map, $border = false, $title = '') {
+		$width = 0;
+		foreach ($map as $m) { $width = max($width, max(array_keys($m))); }
+
+		if ($border) {
+			echo "\n";
+
+			if (!empty($title)) {
+				$titlePadding = ($width - strlen($title)) / 2;
+				echo '┍', str_repeat('━', $width), '┑', "\n";
+				echo '│', sprintf('%'.floor($titlePadding).'s%s%'.ceil($titlePadding).'s', '', $title, ''), '│', "\n";
+				echo '┕', str_repeat('━', $width), '┙', "\n";
+				echo "\n";
+			}
+
+			echo '┍', str_repeat('━', $width + 1), '┑', "\n";
+		}
+		for ($y = 0; $y <= max(array_keys($map)); $y++) {
+			if ($border) { echo '│'; }
+			for ($x = 0; $x <= $width; $x++) {
+				echo isset($map[$y][$x]) ? $map[$y][$x] : '.';
+			}
+			if ($border) { echo '│'; }
+			echo "\n";
+		}
+		if ($border) {  echo '┕', str_repeat('━', $width + 1), '┙', "\n"; }
+	}
+
 	/**
 	 * Get all the permutations of an array of items.
 	 * (From: http://stackoverflow.com/a/13194803/310353)
