@@ -37,3 +37,31 @@
 	}
 
 	echo 'Part 1: ', $part1, "\n";
+
+	foreach ($input as $in) {
+		if (preg_match('/([0-9]+),([0-9]+) -> ([0-9]+),([0-9]+)/', $in, $m)) {
+			[$_, $x1, $y1, $x2, $y2] = $m;
+			if ($x1 != $x2 && $y1 != $y2) {
+				$xdir = $x1 > $x2 ? -1 : 1;
+				$x = $x1;
+				$ydir = $y1 > $y2 ? -1 : 1;
+				$y = $y1;
+				while (true) {
+					if (!isset($map[$y][$x])) { $map[$y][$x] = 0; }
+					$map[$y][$x]++;
+					if ($x == $x2 && $y == $y2) { break; }
+					$x += $xdir;
+					$y += $ydir;
+				};
+			}
+		}
+	}
+
+	$part2 = 0;
+	foreach ($map as $row) {
+		foreach ($row as $point) {
+			if ($point > 1) { $part2++; }
+		}
+	}
+
+	echo 'Part 2: ', $part2, "\n";
