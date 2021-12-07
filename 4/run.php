@@ -6,6 +6,7 @@
 	class Board {
 		private $input = [];
 		private $board = [];
+		private $isWinner = false;
 
 		public function __construct($input) {
 			$this->input = $input;
@@ -14,6 +15,7 @@
 
 		public function reset() {
 			$this->board = [];
+			$this->isWinner = false;
 			foreach ($this->input as $line) {
 				$this->board[] = preg_split('/\s+/', trim($line));
 			}
@@ -28,9 +30,11 @@
 					}
 				}
 			}
+
+			$this->isWinner = $this->check();
 		}
 
-		public function check() {
+		private function check() {
 			for ($line = 0; $line < count($this->board); $line++) {
 				$row = $this->board[$line];
 				$acv = array_count_values($row);
@@ -48,6 +52,10 @@
 			}
 
 			return false;
+		}
+
+		public function isWinner() {
+			return $this->isWinner;
 		}
 
 		public function value() {
@@ -80,14 +88,25 @@
 		$boards[] = new Board($input[$i]);
 	}
 
+	$part1 = $part2 = null;
 	foreach ($numbers as $num) {
+		$nextBoards = [];
 		foreach ($boards as $b) {
 			$b->mark($num);
-			if ($b->check()) {
-				$part1 = $b->value() * $num;
-				break 2;
+			if ($b->isWinner()) {
+				if ($part1 == null) {
+					$part1 = $b->value() * $num;
+				}
+				if (count($boards) == 1) {
+					$part2 = $b->value() * $num;
+				}
+			} else {
+				$nextBoards[] = $b;
 			}
 		}
+		if (empty($nextBoards)) { break; }
+		$boards = $nextBoards;
 	}
 
 	echo 'Part 1: ', $part1, "\n";
+	echo 'Part 2: ', $part2, "\n";
