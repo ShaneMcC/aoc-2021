@@ -89,23 +89,24 @@
 	}
 
 	$part1 = $part2 = null;
+	$winners = 0;
+	$boardCount = count($boards);
 	foreach ($numbers as $num) {
-		$nextBoards = [];
 		foreach ($boards as $b) {
+			if ($b->isWinner()) { continue; }
+
 			$b->mark($num);
 			if ($b->isWinner()) {
 				if ($part1 == null) {
 					$part1 = $b->value() * $num;
 				}
-				if (count($boards) == 1) {
+				if ($winners == $boardCount - 1) {
 					$part2 = $b->value() * $num;
 				}
-			} else {
-				$nextBoards[] = $b;
+				$winners++;
 			}
 		}
-		if (empty($nextBoards)) { break; }
-		$boards = $nextBoards;
+		if ($winners == $boardCount) { break; }
 	}
 
 	echo 'Part 1: ', $part1, "\n";
