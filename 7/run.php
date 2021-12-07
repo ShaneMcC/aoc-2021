@@ -4,10 +4,19 @@
 	$input = explode(',', getInputLine());
 
 	function checkPosition($input, $pos, $max = PHP_INT_MAX, $expensive = false) {
+		global $__expensiveCache;
+
 		$cost = 0;
 		foreach ($input as $in) {
 			$diff = abs($in - $pos);
-			$cost += $expensive ? array_sum(range(0, $diff)) : $diff;
+
+			if ($expensive) {
+				if (!isset($__expensiveCache[$diff])) {
+					$__expensiveCache[$diff] = array_sum(range(0, $diff));
+				}
+			}
+			$cost += $expensive ? $__expensiveCache[$diff] : $diff;
+
 			if ($cost > $max) { return $max; }
 		}
 		return $cost;
