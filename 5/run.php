@@ -1,31 +1,36 @@
 #!/usr/bin/php
 <?php
 	require_once(dirname(__FILE__) . '/../common/common.php');
-	$input = getInputLines();
+
+	$input = [];
+	foreach (getInputLines() as $in) {
+		if (preg_match('/([0-9]+),([0-9]+) -> ([0-9]+),([0-9]+)/', $in, $m)) {
+			[$_, $x1, $y1, $x2, $y2] = $m;
+			$inputs[] = [$x1, $y1, $x2, $y2];
+		}
+	}
 
 	$map = [];
 
 	foreach ($input as $in) {
-		if (preg_match('/([0-9]+),([0-9]+) -> ([0-9]+),([0-9]+)/', $in, $m)) {
-			[$_, $x1, $y1, $x2, $y2] = $m;
+		[$x1, $y1, $x2, $y2] = $in;
 
-			if ($x1 == $x2) {
-				$dir = $y1 > $y2 ? -1 : 1;
-				$y = $y1;
-				do {
-					if (!isset($map[$y][$x1])) { $map[$y][$x1] = 0; }
-					$map[$y][$x1]++;
-					if ($y == $y2) { break; }
-				} while ($y += $dir);
-			} else if ($y1 == $y2) {
-				$dir = $x1 > $x2 ? -1 : 1;
-				$x = $x1;
-				do {
-					if (!isset($map[$y1][$x])) { $map[$y1][$x] = 0; }
-					$map[$y1][$x]++;
-					if ($x == $x2) { break; }
-				} while ($x += $dir);
-			}
+		if ($x1 == $x2) {
+			$dir = $y1 > $y2 ? -1 : 1;
+			$y = $y1;
+			do {
+				if (!isset($map[$y][$x1])) { $map[$y][$x1] = 0; }
+				$map[$y][$x1]++;
+				if ($y == $y2) { break; }
+			} while ($y += $dir);
+		} else if ($y1 == $y2) {
+			$dir = $x1 > $x2 ? -1 : 1;
+			$x = $x1;
+			do {
+				if (!isset($map[$y1][$x])) { $map[$y1][$x] = 0; }
+				$map[$y1][$x]++;
+				if ($x == $x2) { break; }
+			} while ($x += $dir);
 		}
 	}
 
@@ -39,21 +44,19 @@
 	echo 'Part 1: ', $part1, "\n";
 
 	foreach ($input as $in) {
-		if (preg_match('/([0-9]+),([0-9]+) -> ([0-9]+),([0-9]+)/', $in, $m)) {
-			[$_, $x1, $y1, $x2, $y2] = $m;
-			if ($x1 != $x2 && $y1 != $y2) {
-				$xdir = $x1 > $x2 ? -1 : 1;
-				$x = $x1;
-				$ydir = $y1 > $y2 ? -1 : 1;
-				$y = $y1;
-				while (true) {
-					if (!isset($map[$y][$x])) { $map[$y][$x] = 0; }
-					$map[$y][$x]++;
-					if ($x == $x2 && $y == $y2) { break; }
-					$x += $xdir;
-					$y += $ydir;
-				};
-			}
+		[$x1, $y1, $x2, $y2] = $in;
+		if ($x1 != $x2 && $y1 != $y2) {
+			$xdir = $x1 > $x2 ? -1 : 1;
+			$x = $x1;
+			$ydir = $y1 > $y2 ? -1 : 1;
+			$y = $y1;
+			while (true) {
+				if (!isset($map[$y][$x])) { $map[$y][$x] = 0; }
+				$map[$y][$x]++;
+				if ($x == $x2 && $y == $y2) { break; }
+				$x += $xdir;
+				$y += $ydir;
+			};
 		}
 	}
 
