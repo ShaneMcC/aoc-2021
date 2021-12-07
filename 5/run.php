@@ -6,7 +6,7 @@
 	foreach (getInputLines() as $in) {
 		if (preg_match('/([0-9]+),([0-9]+) -> ([0-9]+),([0-9]+)/', $in, $m)) {
 			[$_, $startX, $startY, $endX, $endY] = $m;
-			$inputs[] = [$startX, $startY, $endX, $endY];
+			$input[] = [$startX, $startY, $endX, $endY];
 		}
 	}
 
