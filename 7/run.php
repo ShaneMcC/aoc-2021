@@ -3,26 +3,20 @@
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$input = explode(',', getInputLine());
 
-	function checkPosition($input, $pos, $expensive = false) {
+	function checkPosition($input, $pos) {
 		$cost = 0;
+		$expensiveCost = 0;
 		foreach ($input as $in) {
 			$diff = abs($in - $pos);
-			if ($expensive) {
-				// TODO: There is definitely a better way than this.
-				for ($i = $diff; $i > 0; $i--) {
-					$cost += $i;
-				}
-			} else {
-				$cost += $diff;
-			}
+			$cost += $diff;
+			$expensiveCost += array_sum(range(0, $diff));
 		}
-		return $cost;
+		return [$cost, $expensiveCost];
 	}
 
 	$bestCost1 = $bestPos1 = $bestCost2 = $bestPos2 = PHP_INT_MAX;
 	for ($i = 0; $i < max($input); $i++) {
-		$cost1 = checkPosition($input, $i);
-		$cost2 = checkPosition($input, $i, true);
+		[$cost1, $cost2] = checkPosition($input, $i);
 
 		if ($cost1 < $bestCost1) {
 			$bestCost1 = $cost1;
