@@ -6,6 +6,7 @@
 	class Board {
 		private $input = [];
 		private $board = [];
+		private $numbers = [];
 		private $isWinner = false;
 
 		public function __construct($input) {
@@ -19,16 +20,20 @@
 			foreach ($this->input as $line) {
 				$this->board[] = preg_split('/\s+/', trim($line));
 			}
+
+			$this->numbers = [];
+			for ($line = 0; $line < count($this->board); $line++) {
+				for ($col = 0; $col < count($this->board[$line]); $col++) {
+					$number = $this->board[$line][$col];
+					$this->numbers[$number] = [$line, $col];
+				}
+			}
 		}
 
 		public function mark($number) {
-			for ($line = 0; $line < count($this->board); $line++) {
-				for ($col = 0; $col < count($this->board[$line]); $col++) {
-					if ($this->board[$line][$col] == $number) {
-						$this->board[$line][$col] = 'X';
-						break 2;
-					}
-				}
+			if (isset($this->numbers[$number])) {
+				[$line, $col] = $this->numbers[$number];
+				$this->board[$line][$col] = 'X';
 			}
 
 			$this->isWinner = $this->check();
@@ -90,7 +95,6 @@
 
 	$part1 = $part2 = null;
 	$winners = 0;
-	$boardCount = count($boards);
 	foreach ($numbers as $num) {
 		foreach ($boards as $b) {
 			if ($b->isWinner()) { continue; }
@@ -100,13 +104,13 @@
 				if ($part1 == null) {
 					$part1 = $b->value() * $num;
 				}
-				if ($winners == $boardCount - 1) {
+				if ($winners == count($boards) - 1) {
 					$part2 = $b->value() * $num;
 				}
 				$winners++;
 			}
 		}
-		if ($winners == $boardCount) { break; }
+		if ($winners == count($boards)) { break; }
 	}
 
 	echo 'Part 1: ', $part1, "\n";
