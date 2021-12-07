@@ -2,6 +2,7 @@
 <?php
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$input = explode(',', getInputLine());
+	sort($input);
 
 	function checkPosition($input, $pos, $max = PHP_INT_MAX, $expensive = false) {
 		$cost = 0;
@@ -13,15 +14,15 @@
 		return $cost;
 	}
 
-	$bestCost1 = $bestPos1 = $bestCost2 = $bestPos2 = PHP_INT_MAX;
-	for ($i = 0; $i < max($input); $i++) {
-		$cost1 = checkPosition($input, $i, $bestCost1);
+	$median = $input[count($input) / 2];
+	$bestPos1 = $median;
+	$bestCost1 = checkPosition($input, $median);
+
+	$mean = floor(array_sum($input) / count($input));
+	$bestCost2 = PHP_INT_MAX;
+	foreach ([$mean, $mean + 1] as $i) {
 		$cost2 = checkPosition($input, $i, $bestCost2, true);
 
-		if ($cost1 < $bestCost1) {
-			$bestCost1 = $cost1;
-			$bestPos1 = $i;
-		}
 		if ($cost2 < $bestCost2) {
 			$bestCost2 = $cost2;
 			$bestPos2 = $i;
