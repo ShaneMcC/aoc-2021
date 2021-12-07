@@ -34,26 +34,21 @@
 			if (isset($this->numbers[$number])) {
 				[$line, $col] = $this->numbers[$number];
 				$this->board[$line][$col] = 'X';
+				$this->isWinner = $this->check($line, $col);
 			}
-
-			$this->isWinner = $this->check();
 		}
 
-		private function check() {
-			for ($line = 0; $line < count($this->board); $line++) {
-				$row = $this->board[$line];
-				$acv = array_count_values($row);
-				if (isset($acv['X']) && $acv['X'] == count($this->board)) {
-					return true;
-				}
+		private function check($line, $col) {
+			$row = $this->board[$line];
+			$acv = array_count_values($row);
+			if (isset($acv['X']) && $acv['X'] == count($this->board)) {
+				return true;
 			}
 
-			for ($col = 0; $col < count($this->board[0]); $col++) {
-				$column = array_column($this->board, $col);
-				$acv = array_count_values($column);
-				if (isset($acv['X']) && $acv['X'] == count($this->board)) {
-					return true;
-				}
+			$column = array_column($this->board, $col);
+			$acv = array_count_values($column);
+			if (isset($acv['X']) && $acv['X'] == count($this->board)) {
+				return true;
 			}
 
 			return false;
