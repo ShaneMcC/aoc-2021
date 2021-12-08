@@ -22,32 +22,32 @@
  		*/
 		$segmentMap = array_fill(0, 7, []);
 
-		// Lump things together by length.
-		$lengthMap = [];
+		// Get known possibilities.
+		$num069 = $num235 = [];
 		foreach ($tests as $t) {
 			$len = strlen($t);
-			if (!isset($lengthMap[$len])) { $lengthMap[$len] = []; }
-			$lengthMap[$len][] = str_split($t);
-		}
+			$split = str_split($t);
 
-		// We know what these are as they are the only options.
-		$num1 = $lengthMap[2][0];
-		$num4 = $lengthMap[4][0];
-		$num7 = $lengthMap[3][0];
-		$num8 = $lengthMap[7][0];
+			if ($len == 2) { $num1 = $split; }
+			else if ($len == 3) { $num7 = $split; }
+			else if ($len == 4) { $num4 = $split; }
+			else if ($len == 5) { $num235[] = $split; } // Unused.
+			else if ($len == 6) { $num069[] = $split; }
+			else if ($len == 7) { $num8 = $split; } // Unused.
+		}
 
 		// segment-0 is the letter in num7 but not num1
 		$segmentMap[0] = array_values(array_diff($num7, $num1))[0];
 
-		// segment-1 is a letter in num4, but not num1
-		// And that is also present in all 3 of the "6-length" options (0,6,9)
-		// This also then tells us what segment-3 is (it is the other one, that
-		// is thus only present in 6,9 but not 0)
+		// segment-1 is a letter in num4, but not num1 that is also present in
+		// all of (0,6,9)
+		// segment-3 is the other letter in num4, that is only present in 6,9
+		// but not 0)
 		$options = array_values(array_diff($num4, $num1));
 
-		if (in_array($options[0], $lengthMap[6][0]) &&
-			in_array($options[0], $lengthMap[6][1]) &&
-			in_array($options[0], $lengthMap[6][2])) {
+		if (in_array($options[0], $num069[0]) &&
+			in_array($options[0], $num069[1]) &&
+			in_array($options[0], $num069[2])) {
 			$segmentMap[1] = $options[0];
 			$segmentMap[3] = $options[1];
 		} else {
@@ -55,37 +55,23 @@
 			$segmentMap[3] = $options[0];
 		}
 
-		// We can also work out the segment-2 and segment-5 from the 1, by
-		// looking at (0,6,9) segment-5 appears in all 3, segment-2 does not.
-		$options = $num1;
-		if (in_array($options[0], $lengthMap[6][0]) &&
-			in_array($options[0], $lengthMap[6][1]) &&
-			in_array($options[0], $lengthMap[6][2])) {
-			$segmentMap[5] = $options[0];
-			$segmentMap[2] = $options[1];
-		} else {
-			$segmentMap[5] = $options[1];
-			$segmentMap[2] = $options[0];
-		}
-
-		// segment-6 appears in exactly 7 of the tests and isn't segment-3.
+		// Of the remaining letters:
+		// segment-5 appears in 9 of the tests
+		// segment-2 appears in 8 of the tests
+		// segment-6 appears in 7 of the tests
+		// segment-4 appears in 4 of the tests
 		foreach (str_split('abcdefg') as $option) {
-			// Ignore options we already know of
 			if (in_array($option, array_values($segmentMap))) { continue; }
 
 			$count = 0;
 			foreach ($tests as $t) {
 				if (strpos($t, $option) !== false) { $count++; }
 			}
-			if ($count == 7) {
-				$segmentMap[6] = $option;
-			}
-		}
 
-		// segment-4 is the remaining one.
-		foreach (str_split('abcdefg') as $option) {
-			if (in_array($option, array_values($segmentMap))) { continue; }
-			$segmentMap[4] = $option;
+			if ($count == 9) { $segmentMap[5] = $option; }
+			else if ($count == 8) { $segmentMap[2] = $option; }
+			else if ($count == 7) { $segmentMap[6] = $option; }
+			else if ($count == 4) { $segmentMap[4] = $option; }
 		}
 
 		return $segmentMap;
@@ -143,9 +129,7 @@
 			}
 		}
 
-		// Get the number map
-		$numberMap = getNumberMap(getSegmentMap($tests));
-		$part2 += getNumber($numberMap, $number);
+		$part2 += getNumber(getNumberMap(getSegmentMap($tests)), $number);
 	}
 
 	echo 'Part 1: ', $part1, "\n";
