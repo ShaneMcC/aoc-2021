@@ -31,9 +31,9 @@
 			if ($len == 2) { $num1 = $split; }
 			else if ($len == 3) { $num7 = $split; }
 			else if ($len == 4) { $num4 = $split; }
-			else if ($len == 5) { $num235[] = $split; } // Unused.
+			// else if ($len == 5) { $num235[] = $split; }
 			else if ($len == 6) { $num069[] = $split; }
-			else if ($len == 7) { $num8 = $split; } // Unused.
+			// else if ($len == 7) { $num8 = $split; }
 		}
 
 		// segment-0 is the letter in num7 but not num1
