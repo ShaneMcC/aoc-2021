@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 	require_once(dirname(__FILE__) . '/../common/common.php');
-	require_once(dirname(__FILE__) . '/../common/pathfinder.php');
+
 	$map = getInputMap();
 
 	function getBasinCells($map, $x, $y, $known = []) {
