@@ -23,6 +23,7 @@
 		foreach (getAdjacentCells($map, $x, $y) as [$ax, $ay]) {
 			if ($map[$ay][$ax] <= $cell) {
 				$lowPoint = false;
+				continue 2;
 			}
 		}
 
