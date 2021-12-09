@@ -218,6 +218,25 @@
 	}
 
 	/**
+	 * Generator to provide adjacent cells of a point.
+	 *
+	 * @param $grid Grid to look at
+	 * @param $x X point
+	 * @param $y Y point
+	 * @param $diagonal (Default: false) Include diagonals?
+	 */
+	function getAdjacentCells($grid, $x, $y, $diagonal = false) {
+		if ($diagonal && isset($grid[$y - 1][$x - 1])) { yield [$x - 1, $y - 1]; }
+		if (isset($grid[$y - 1][$x])) { yield [$x, $y - 1]; }
+		if ($diagonal && isset($grid[$y - 1][$x + 1])) { yield [$x + 1, $y - 1]; }
+		if (isset($grid[$y][$x - 1])) { yield [$x - 1, $y]; }
+		if (isset($grid[$y][$x + 1])) { yield [$x + 1, $y]; }
+		if ($diagonal && isset($grid[$y + 1][$x - 1])) { yield [$x - 1, $y + 1]; }
+		if (isset($grid[$y + 1][$x])) { yield [$x, $y + 1]; }
+		if ($diagonal && isset($grid[$y + 1][$x + 1])) { yield [$x + 1, $y + 1]; }
+	}
+
+	/**
 	 * Get the bounding box of a standard $grid[$y][$x] array.
 	 * $grid may be sparsely populated.
 	 *
