@@ -27,7 +27,7 @@ while [ "${1}" != "" ]; do
 done
 
 if [ "${DAY}" == "test" ]; then
-	/code/test.sh
+	/code/test.sh "${@}"
 	exit ${?}
 fi;
 
