@@ -28,14 +28,11 @@
 
 		if ($lowPoint) {
 			$part1 += (1 + $cell);
-
-			$cells = getBasinCells($map, $x, $y);
-			$basins[] = count($cells);
+			$basins[] = count(getBasinCells($map, $x, $y));
 		}
 	}
-
-	echo 'Part 1: ', $part1, "\n";
-
 	rsort($basins);
 	$part2 = array_product(array_slice($basins, 0, 3));
+
+	echo 'Part 1: ', $part1, "\n";
 	echo 'Part 2: ', $part2, "\n";
