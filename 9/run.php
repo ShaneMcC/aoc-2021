@@ -5,6 +5,7 @@
 	$map = getInputMap();
 
 	function getBasinCells($map, $x, $y, $known = []) {
+		global $map;
 		$known[] = [$x, $y];
 		foreach (getAdjacentCells($map, $x, $y) as [$ax, $ay]) {
 			if ($map[$ay][$ax] == 9) { continue; }
