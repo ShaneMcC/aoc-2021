@@ -12,29 +12,20 @@
 	$part2 = [];
 
 	foreach ($input as $line) {
-		$bits = str_split($line);
 		$expected = [];
-		foreach ($bits as $bit) {
-			switch ($bit) {
-				case '(':
-				case '[':
-				case '{':
-				case '<':
-					$expected[] = $opposite[$bit];
-					break;
-
-				case ')':
-				case ']':
-				case '}':
-				case '>':
-					$wanted = empty($expected) ? '' : array_pop($expected);
-					if ($wanted != $bit) {
-						$part1 += $corruptedPoints[$bit];
-						continue 3;
-					}
+		foreach (str_split($line) as $bit) {
+			if (isset($opposite[$bit])) {
+				$expected[] = $opposite[$bit];
+			} else {
+				$wanted = array_pop($expected);
+				if ($wanted != $bit) {
+					$part1 += $corruptedPoints[$bit];
+					continue 2; // Go to next Line, ignore this one.
+				}
 			}
 		}
 
+		// Line is incomplete rather than corrupted...
 		$linePoints = 0;
 		foreach (array_reverse($expected) as $bit) {
 			$linePoints *= 5;
