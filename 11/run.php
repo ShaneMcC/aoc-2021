@@ -36,14 +36,24 @@
 		return [$newMap, count($flashers)];
 	}
 
-
-	$part1 = 0;
-	for ($i = 0; $i < 100; $i++) {
+	$mapSize = count($map) * count($map[0]);
+	$part1 = $part2 = 0;
+	$steps = 0;
+	while (true) {
+		$steps++;
 		[$map, $flashCount] = step($map);
-		$part1 += $flashCount;
+		if ($steps <= 100) {
+			$part1 += $flashCount;
+		}
+		if ($steps == 100) {
+			echo 'Part 1: ', $part1, "\n";
+		}
+
+		if ($flashCount == $mapSize) {
+			$part2 = $steps;
+		}
+
+		if ($steps >= 100 && $part2 > 0) { break; }
 	}
 
-	echo 'Part 1: ', $part1, "\n";
-
-	// $part2 = -1;
-	// echo 'Part 2: ', $part2, "\n";
+	echo 'Part 2: ', $part2, "\n";
