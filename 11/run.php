@@ -75,6 +75,7 @@
 		if ($steps <= 100) { $part1 += $flashCount; }
 		if ($part2 == 0 && $flashCount == $mapSize) { $part2 = $steps; }
 		if ($steps >= 100 && $part2 > 0) { break; }
+		if ($steps > 10000) { break; } // Bail if it looks like we're never succeeding...
 	}
 
 	echo 'Part 1: ', $part1, "\n";
