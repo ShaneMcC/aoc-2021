@@ -16,7 +16,7 @@
 			$map[$y][$x]++;
 
 			// Any octopus with an energy level greater than 9 wants to flash.
-			if ($map[$y][$x] > 9) {
+			if ($map[$y][$x] == 10) {
 				$wantsToFlash[] = [$x, $y];
 			}
 		}
@@ -31,13 +31,11 @@
 		$flashers = [];
 
 		while ([$x, $y] = array_pop($wantsToFlash)) {
-			if (!in_array([$x, $y], $flashers)) {
-				$flashers[] = [$x, $y];
-				foreach (getAdjacentCells($map, $x, $y, true) as [$ax, $ay]) {
-					$map[$ay][$ax]++;
-					if ($map[$ay][$ax] > 9) {
-						$wantsToFlash[] = [$ax, $ay];
-					}
+			$flashers[] = [$x, $y];
+			foreach (getAdjacentCells($map, $x, $y, true) as [$ax, $ay]) {
+				$map[$ay][$ax]++;
+				if ($map[$ay][$ax] == 10) {
+					$wantsToFlash[] = [$ax, $ay];
 				}
 			}
 		}
