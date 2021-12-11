@@ -4,36 +4,46 @@
 	$map = getInputMap();
 
 	function step($map) {
-		$newMap = $map;
-
-		$flashers = [];
-
-		foreach (cells($newMap) as [$x, $y, $cell]) {
-			$newMap[$y][$x]++;
+		// First, the energy level of each octopus increases by 1.
+		foreach (cells($map) as [$x, $y, $cell]) {
+			$map[$y][$x]++;
 		}
 
-		$flashed = false;
+		// Then, any octopus with an energy level greater than 9 flashes.
+		// This increases the energy level of all adjacent octopuses by 1,
+		// including octopuses that are diagonally adjacent. If this causes
+		// an octopus to have an energy level greater than 9, it also flashes.
+		// This process continues as long as new octopuses keep having their
+		// energy level increased beyond 9. (An octopus can only flash at
+		// most once per step.)
+		$flashers = [];
+
 		do {
 			$flashed = false;
-			foreach (cells($newMap) as [$x, $y, $cell]) {
-				if ($cell > 9) {
-					if (!in_array([$x, $y], $flashers)) {
+
+			for ($y = 0; $y < count($map); $y++) {
+				for ($x = 0; $x < count($map[$y]); $x++) {
+					// Check we haven't flashed, and we're larger than 9.
+					if ($map[$y][$x] > 9 && !in_array([$x, $y], $flashers)) {
 						$flashed = true;
 						$flashers[] = [$x, $y];
 
-						foreach (getAdjacentCells($newMap, $x, $y, true) as [$ax, $ay]) {
-							$newMap[$ay][$ax]++;
+						// Bump all neighbours
+						foreach (getAdjacentCells($map, $x, $y, true) as [$ax, $ay]) {
+							$map[$ay][$ax]++;
 						}
 					}
 				}
 			}
 		} while ($flashed);
 
+		// Finally, any octopus that flashed during this step has its energy
+		// level set to 0, as it used all of its energy to flash.
 		foreach ($flashers as [$x, $y]) {
-			$newMap[$y][$x] = 0;
+			$map[$y][$x] = 0;
 		}
 
-		return [$newMap, count($flashers)];
+		return [$map, count($flashers)];
 	}
 
 	$mapSize = count($map) * count($map[0]);
