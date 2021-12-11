@@ -38,22 +38,12 @@
 
 	$mapSize = count($map) * count($map[0]);
 	$part1 = $part2 = 0;
-	$steps = 0;
-	while (true) {
-		$steps++;
+	for ($steps = 1; true; $steps++) {
 		[$map, $flashCount] = step($map);
-		if ($steps <= 100) {
-			$part1 += $flashCount;
-		}
-		if ($steps == 100) {
-			echo 'Part 1: ', $part1, "\n";
-		}
-
-		if ($flashCount == $mapSize) {
-			$part2 = $steps;
-		}
-
+		if ($steps <= 100) { $part1 += $flashCount; }
+		if ($part2 == 0 && $flashCount == $mapSize) { $part2 = $steps; }
 		if ($steps >= 100 && $part2 > 0) { break; }
 	}
 
+	echo 'Part 1: ', $part1, "\n";
 	echo 'Part 2: ', $part2, "\n";
