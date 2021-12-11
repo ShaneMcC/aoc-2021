@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+    $__CLI['long'] = ['draw', 'delay:'];
+    $__CLI['extrahelp'] = [];
+    $__CLI['extrahelp'][] = '      --draw               Draw the map.';
+    $__CLI['extrahelp'][] = '      --delay <num>        Delay between frames (Default: 0.1)';
+
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$map = getInputMap();
 
@@ -43,13 +48,32 @@
 			$map[$y][$x] = 0;
 		}
 
-		return [$map, count($flashers)];
+		return [$map, $flashers];
+	}
+
+
+	if (isset($__CLIOPTS['draw'])) {
+		drawMap($map, true, 'Step 0');
+		$drawDelay = isset($__CLIOPTS['delay']) ? (is_array($__CLIOPTS['delay']) ? $__CLIOPTS['delay'][count($__CLIOPTS['delay']) - 1] : $__CLIOPTS['delay']) : 0.1;
+		$drawDelay *= 1000000;
 	}
 
 	$mapSize = count($map) * count($map[0]);
 	$part1 = $part2 = 0;
 	for ($steps = 1; true; $steps++) {
-		[$map, $flashCount] = step($map);
+		[$map, $flashers] = step($map);
+		$flashCount = count($flashers);
+
+		if (isset($__CLIOPTS['draw'])) {
+			echo "\033[" . (count($map) + 7) . "A";
+			$drawMap = $map;
+			foreach ($flashers as [$fx, $fy]) {
+				$drawMap[$fy][$fx] = "\033[1;31m" . $drawMap[$fy][$fx] . "\033[0m";
+			}
+			drawMap($drawMap, true, 'Step ' . $steps);
+			usleep($drawDelay);
+		}
+
 		if ($steps <= 100) { $part1 += $flashCount; }
 		if ($part2 == 0 && $flashCount == $mapSize) { $part2 = $steps; }
 		if ($steps >= 100 && $part2 > 0) { break; }
