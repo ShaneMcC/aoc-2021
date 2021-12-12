@@ -31,7 +31,7 @@
 				if ($possible == $start) { continue; }
 
 				if ($possible == $end) {
-					$paths[] = $next;
+					$paths[implode(',', $next)] = true;
 					continue;
 				}
 
@@ -61,10 +61,9 @@
 
 	foreach (array_keys($caves) as $c) {
 		if (strtolower($c) == $c && $c != 'start' && $c != 'end') {
-			$paths = array_merge($paths, findPaths($caves, 'start', 'end', $c));
+			$paths += findPaths($caves, 'start', 'end', $c);
 		}
 	}
-	$paths = array_unique($paths, SORT_REGULAR);
 	$part2 = count($paths);
 
 	echo 'Part 2: ', $part2, "\n";
