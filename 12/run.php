@@ -15,7 +15,7 @@
 	}
 
 	function findPaths($caves, $allowTwice = false) {
-		$paths = [];
+		$paths = 0;
 
 		$pending = [[false, ['start']]];
 
@@ -31,7 +31,7 @@
 				if ($nextCave == 'start') { continue; }
 
 				if ($nextCave == 'end') {
-					$paths[implode(',', $nextPath)] = true;
+					$paths++;
 					continue;
 				}
 
@@ -50,12 +50,8 @@
 		return $paths;
 	}
 
-	$paths = findPaths($caves);
-
-	$part1 = count($paths);
+	$part1 = findPaths($caves);
 	echo 'Part 1: ', $part1, "\n";
 
-	$paths = findPaths($caves, true);
-	$part2 = count($paths);
-
+	$part2 = findPaths($caves, true);
 	echo 'Part 2: ', $part2, "\n";
