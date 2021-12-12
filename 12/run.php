@@ -14,13 +14,13 @@
 		$caves[$second][] = $first;
 	}
 
-	function findPaths($caves, $start, $end, $allowTwice = '') {
+	function findPaths($caves, $start, $end, $allowTwice = false) {
 		$paths = [];
 
-		$pending = [[$start]];
+		$pending = [[false, [$start]]];
 
 		while (!empty($pending)) {
-			$current = array_pop($pending);
+			[$hasVisitedTwice, $current] = array_pop($pending);
 			$last = $current[count($current) - 1];
 
 			foreach ($caves[$last] as $possible) {
@@ -37,14 +37,11 @@
 
 				$inArray = in_array($possible, $current);
 				if (!$isSmall || !$inArray) {
-					$pending[] = $next;
+					$pending[] = [$hasVisitedTwice, $next];
 				}
 
-				if ($inArray && $possible == $allowTwice) {
-					$count = count(array_filter($current, function($a) use ($possible) {return $a == $possible;}));
-					if ($count == 1) {
-						$pending[] = $next;
-					}
+				if ($inArray && $isSmall && $allowTwice && $hasVisitedTwice === FALSE) {
+					$pending[] = [true, $next];
 				}
 
 			}
@@ -58,12 +55,7 @@
 	$part1 = count($paths);
 	echo 'Part 1: ', $part1, "\n";
 
-
-	foreach (array_keys($caves) as $c) {
-		if (strtolower($c) == $c && $c != 'start' && $c != 'end') {
-			$paths += findPaths($caves, 'start', 'end', $c);
-		}
-	}
+	$paths = findPaths($caves, 'start', 'end', true);
 	$part2 = count($paths);
 
 	echo 'Part 2: ', $part2, "\n";
