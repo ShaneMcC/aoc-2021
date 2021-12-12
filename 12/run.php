@@ -14,34 +14,34 @@
 		$caves[$second][] = $first;
 	}
 
-	function findPaths($caves, $start, $end, $allowTwice = false) {
+	function findPaths($caves, $allowTwice = false) {
 		$paths = [];
 
-		$pending = [[false, [$start]]];
+		$pending = [[false, ['start']]];
 
 		while (!empty($pending)) {
-			[$hasVisitedTwice, $current] = array_pop($pending);
-			$last = $current[count($current) - 1];
+			[$hasVisitedTwice, $currentPath] = array_pop($pending);
+			$last = $currentPath[count($currentPath) - 1];
 
-			foreach ($caves[$last] as $possible) {
-				$next = $current;
-				$next[] = $possible;
-				$isSmall = strtolower($possible) == $possible;
+			foreach ($caves[$last] as $nextCave) {
+				$nextPath = $currentPath;
+				$nextPath[] = $nextCave;
+				$isSmallCave = strtolower($nextCave) == $nextCave;
 
-				if ($possible == $start) { continue; }
+				if ($nextCave == 'start') { continue; }
 
-				if ($possible == $end) {
-					$paths[implode(',', $next)] = true;
+				if ($nextCave == 'end') {
+					$paths[implode(',', $nextPath)] = true;
 					continue;
 				}
 
-				$inArray = in_array($possible, $current);
-				if (!$isSmall || !$inArray) {
-					$pending[] = [$hasVisitedTwice, $next];
+				$hasVisited = in_array($nextCave, $currentPath);
+				if (!$hasVisited || !$isSmallCave) {
+					$pending[] = [$hasVisitedTwice, $nextPath];
 				}
 
-				if ($inArray && $isSmall && $allowTwice && $hasVisitedTwice === FALSE) {
-					$pending[] = [true, $next];
+				if ($hasVisited && $isSmallCave && $allowTwice && $hasVisitedTwice === false) {
+					$pending[] = [true, $nextPath];
 				}
 
 			}
@@ -50,12 +50,12 @@
 		return $paths;
 	}
 
-	$paths = findPaths($caves, 'start', 'end');
+	$paths = findPaths($caves);
 
 	$part1 = count($paths);
 	echo 'Part 1: ', $part1, "\n";
 
-	$paths = findPaths($caves, 'start', 'end', true);
+	$paths = findPaths($caves, true);
 	$part2 = count($paths);
 
 	echo 'Part 2: ', $part2, "\n";
