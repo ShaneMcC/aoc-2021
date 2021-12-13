@@ -18,6 +18,7 @@
 		}
 
 		if (preg_match('#fold along ([xy])=(.*)#SADi', $line, $m)) {
+			echo '.';
 			if (isDebug()) { drawSparseMap($map, ' ', true); }
 			[$all, $axis, $point] = $m;
 
