@@ -1,5 +1,7 @@
 <?php
 
+	// This looks like it should be considered to be 4x6, but the `Y` uses all 5
+	// columns, whereas the rest do not.
 	$encodedChars[5][6] = ['011001001010010111101001010010' => 'A',
 	                       '111001001011100100101001011100' => 'B',
 	                       '011001001010000100001001001100' => 'C',
@@ -30,11 +32,11 @@
 	                      ];
 
 
-	function decodeText($image, $width = 5, $height = 6) {
+	function decodeText($image, $width = 5, $height = 6, $gap = 0) {
 		global $encodedChars;
 
 		$text = '';
-		$charCount = ceil((is_array($image[0]) ? count($image[0]) : strlen($image[0])) / $width);
+		$charCount = ceil((is_array($image[0]) ? count($image[0]) : strlen($image[0])) / ($width + $gap));
 		$chars = [];
 
 		if (!isset($encodedChars[$width][$height])) { return str_repeat('?', $charCount);  }
@@ -42,7 +44,7 @@
 
 		foreach ($image as $row) {
 			for ($i = 0; $i < $charCount; $i++) {
-				$c = is_array($row) ? implode('', array_slice($row, ($i * $width), $width)) : substr($row, ($i * $width), $width);
+				$c = is_array($row) ? implode('', array_slice($row, ($i * ($width + $gap)), $width)) : substr($row, ($i * ($width + $gap)), $width);
 				$c = str_pad(preg_replace(['/(█|[^.\s0])/', '/[.\s0]/'], [1, 0], $c), $width, '0');
 				$chars[$i][] = $c;
 			}
