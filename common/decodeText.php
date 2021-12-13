@@ -10,7 +10,7 @@
 	                       '111101000011100100001000010000' => 'F',
 	                       '011001001010000101101001001110' => 'G',
 	                       '100101001011110100101001010010' => 'H',
-	                       '' => 'I',
+	                       '011100010000100001000010001110' => 'I',
 	                       '001100001000010000101001001100' => 'J',
 	                       '100101010011000101001010010010' => 'K',
 	                       '100001000010000100001000011110' => 'L',
@@ -20,7 +20,7 @@
 	                       '111001001010010111001000010000' => 'P',
 	                       '' => 'Q',
 	                       '111001001010010111001010010010' => 'R',
-	                       '' => 'S',
+	                       '011101000010000011000001011100' => 'S',
 	                       '' => 'T',
 	                       '100101001010010100101001001100' => 'U',
 	                       '' => 'V',
@@ -31,11 +31,28 @@
 	                       '000000000000000000000000000000' => ' ',
 	                      ];
 
-	// 4x6 version. Remove Y, and the last column of empty spaces.
+	// Unofficial characters found in custom inputs in the past.
+	// 5-Wide I
+	$encodedChars[5][6]['111110010000100001000010011111'] = 'I';
+
+	// askalski: https://www.reddit.com/r/adventofcode/comments/5h9sfd/2016_day_8_tampering_detected/
+	$encodedChars[5][6]['100101001011010101101001010010'] = 'N';
+	$encodedChars[5][6]['111110010000100001000010000100'] = 'T';
+	$encodedChars[5][6]['011100010000100001000010000100'] = 'T'; // 3-Wide of T just in-case
+	$encodedChars[5][6]['100011000110001010100101000100'] = 'V';
+
+	// p_tseng: https://www.reddit.com/r/adventofcode/comments/5h571u/2016_day_8_generate_an_input/day4ctx/
+	$encodedChars[5][6]['100011100110101101011001110001'] = 'N';
+
+	// 4x6 version. Remove last column of empty spaces, and any letters that
+	// are too wide.
 	$encodedChars[4][6] = [];
 	foreach ($encodedChars[5][6] as $code => $char) {
-		if ($char == 'Y') { continue; } // Not compatible.
-		$encodedChars[4][6][preg_replace('/(.{4})./', '$1', $code)] = $char;
+		$c4x6 = preg_replace('/(.{4})./', '$1', $code);
+		$c4x60 = preg_replace('/(.{4})./', '$10', $code);
+		if ($c4x60 != $code) { // Remove any characters using the 5th column.
+			$encodedChars[4][6][$c4x6] = $char;
+		}
 	}
 
 	function decodeText($image, $width = 5, $height = 6, $gap = 0) {
