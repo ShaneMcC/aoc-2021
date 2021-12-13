@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
 	require_once(dirname(__FILE__) . '/../common/common.php');
+	require_once(dirname(__FILE__) . '/../common/decodeText.php');
 	$input = getInputLines();
 
 	$map = [];
@@ -11,12 +12,13 @@
 			[$all, $x, $y] = $m;
 
 			if (!isset($map[$y])) { $map[$y] = []; }
-			$map[$y][$x] = '#';
+			$map[$y][$x] = '█';
 			$maxX = max($maxX, $x);
 			$maxY = max($maxY, $y);
 		}
 
 		if (preg_match('#fold along ([xy])=(.*)#SADi', $line, $m)) {
+			if (isDebug()) { drawSparseMap($map, ' ', true); }
 			[$all, $axis, $point] = $m;
 
 			$newMap = $map;
@@ -30,6 +32,7 @@
 					}
 					unset($newMap[$y]);
 				}
+				$maxY = $point;
 			}
 
 			if ($axis == 'x') {
@@ -43,13 +46,14 @@
 						}
 					}
 				}
+				$maxX = $point;
 			}
 
 			$map = $newMap;
 
 			if ($part1 == 0) {
 				foreach (cells($map) as [$x, $y, $cell]) {
-					if ($cell == '#') { $part1++; }
+					$part1++;
 				}
 			}
 		}
@@ -57,7 +61,15 @@
 
 	echo 'Part 1: ', $part1, "\n";
 
-	drawSparseMap($map, true);
-	// EFLFJGRF
-	// $part2 = -1;
-	// echo 'Part 2: ', $part2, "\n";
+	// Get a decodeable map.
+	$newMap = [];
+	for ($y = 0; $y < $maxY; $y++) {
+		$newMap[$y] = [];
+		for ($x = 0; $x < $maxX; $x++) {
+			$newMap[$y][$x] = isset($map[$y][$x]) ? 1 : 0;
+		}
+	}
+	$part2 = decodeText($newMap);
+	echo 'Part 2: ', $part2, "\n";
+
+	drawSparseMap($map, ' ', true);

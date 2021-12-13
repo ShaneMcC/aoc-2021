@@ -282,7 +282,7 @@
 		if ($border) {  echo '┕', str_repeat('━', $width), '┙', "\n"; }
 	}
 
-	function drawSparseMap($map, $border = false, $title = '') {
+	function drawSparseMap($map, $empty = '.', $border = false, $title = '') {
 		$width = 0;
 		foreach ($map as $m) { $width = max($width, max(array_keys($m))); }
 
@@ -302,7 +302,7 @@
 		for ($y = 0; $y <= max(array_keys($map)); $y++) {
 			if ($border) { echo '│'; }
 			for ($x = 0; $x <= $width; $x++) {
-				echo isset($map[$y][$x]) ? $map[$y][$x] : ' ';
+				echo isset($map[$y][$x]) ? $map[$y][$x] : $empty;
 			}
 			if ($border) { echo '│'; }
 			echo "\n";
