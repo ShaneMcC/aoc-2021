@@ -21,16 +21,15 @@
 			if (isDebug()) { drawSparseMap($map, ' ', true); }
 			[$all, $axis, $point] = $m;
 
-			$newMap = $map;
 			if ($axis == 'y') {
 				for ($y = ($point + 1); $y <= $maxY; $y++) {
 					if (!isset($map[$y])) { continue; }
 					$newY = $point - ($y - $point);
 
 					foreach ($map[$y] as $x => $cell) {
-						$newMap[$newY][$x] = $cell;
+						$map[$newY][$x] = $cell;
 					}
-					unset($newMap[$y]);
+					unset($map[$y]);
 				}
 				$maxY = $point;
 			}
@@ -40,16 +39,14 @@
 					$newX = $point - ($x - $point);
 
 					for ($y = 0; $y <= $maxY; $y++) {
-						if (isset($newMap[$y][$x])) {
-							$newMap[$y][$newX] = $newMap[$y][$x];
-							unset($newMap[$y][$x]);
+						if (isset($map[$y][$x])) {
+							$map[$y][$newX] = $map[$y][$x];
+							unset($map[$y][$x]);
 						}
 					}
 				}
 				$maxX = $point;
 			}
-
-			$map = $newMap;
 
 			if ($part1 == 0) {
 				foreach (cells($map) as [$x, $y, $cell]) {
