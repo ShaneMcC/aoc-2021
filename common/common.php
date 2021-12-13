@@ -310,6 +310,26 @@
 		if ($border) {  echo '┕', str_repeat('━', $width + 1), '┙', "\n"; }
 	}
 
+	function desparseMap($map, $width = 0, $height = 0) {
+		if ($width <= 0) {
+			foreach ($map as $m) { $width = max($width, max(array_keys($m))); }
+			$width += 1;
+		}
+		if ($height <= 0) {
+			$height = max(array_keys($map)) + 1;
+		}
+
+		$newMap = [];
+		for ($y = 0; $y < $height; $y++) {
+			$newMap[$y] = [];
+			for ($x = 0; $x < $width; $x++) {
+				$newMap[$y][$x] = isset($map[$y][$x]) ? $map[$y][$x] : ' ';
+			}
+		}
+
+		return $newMap;
+	}
+
 	/**
 	 * Get all the permutations of an array of items.
 	 * (From: http://stackoverflow.com/a/13194803/310353)

@@ -58,15 +58,8 @@
 
 	echo 'Part 1: ', $part1, "\n";
 
-	// Get a decodable map.
-	$newMap = [];
-	for ($y = 0; $y < $maxY; $y++) {
-		$newMap[$y] = [];
-		for ($x = 0; $x < $maxX; $x++) {
-			$newMap[$y][$x] = isset($map[$y][$x]) ? $map[$y][$x] : ' ';
-		}
-	}
-	$part2 = decodeText($newMap);
+	$map = desparseMap($map, $maxX, $maxY);
+	$part2 = decodeText($map);
 	echo 'Part 2: ', $part2, "\n";
 
-	drawMap($newMap, true);
+	drawMap($map, true);
