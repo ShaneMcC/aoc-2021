@@ -23,8 +23,8 @@
 
 			if ($axis == 'y') {
 				for ($y = ($point + 1); $y <= $maxY; $y++) {
-					if (!isset($map[$y])) { continue; }
 					$newY = $point - ($y - $point);
+					if (!isset($map[$y])) { continue; }
 
 					foreach ($map[$y] as $x => $cell) {
 						$map[$newY][$x] = $cell;
@@ -38,7 +38,7 @@
 				for ($x = ($point + 1); $x <= $maxX; $x++) {
 					$newX = $point - ($x - $point);
 
-					for ($y = 0; $y <= $maxY; $y++) {
+					foreach (array_keys($map) as $y) {
 						if (isset($map[$y][$x])) {
 							$map[$y][$newX] = $map[$y][$x];
 							unset($map[$y][$x]);
