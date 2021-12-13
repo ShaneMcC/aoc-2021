@@ -31,6 +31,12 @@
 	                       '000000000000000000000000000000' => ' ',
 	                      ];
 
+	// 4x6 version. Remove Y, and the last column of empty spaces.
+	$encodedChars[4][6] = [];
+	foreach ($encodedChars[5][6] as $code => $char) {
+		if ($char == 'Y') { continue; } // Not compatible.
+		$encodedChars[4][6][preg_replace('/(.{4})./', '$1', $code)] = $char;
+	}
 
 	function decodeText($image, $width = 5, $height = 6, $gap = 0) {
 		global $encodedChars;
