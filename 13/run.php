@@ -58,7 +58,7 @@
 
 	echo 'Part 1: ', $part1, "\n";
 
-	// Get a decodeable map.
+	// Get a decodable map.
 	$newMap = [];
 	for ($y = 0; $y < $maxY; $y++) {
 		$newMap[$y] = [];
