@@ -63,10 +63,10 @@
 	for ($y = 0; $y < $maxY; $y++) {
 		$newMap[$y] = [];
 		for ($x = 0; $x < $maxX; $x++) {
-			$newMap[$y][$x] = isset($map[$y][$x]) ? 1 : 0;
+			$newMap[$y][$x] = isset($map[$y][$x]) ? $map[$y][$x] : ' ';
 		}
 	}
 	$part2 = decodeText($newMap);
 	echo 'Part 2: ', $part2, "\n";
 
-	drawSparseMap($map, ' ', true);
+	drawMap($newMap, true);

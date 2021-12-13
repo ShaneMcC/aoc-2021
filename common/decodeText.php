@@ -47,7 +47,7 @@
 		}
 
 		foreach ($chars as $c) {
-			$id = implode('', $c);
+			$id = preg_replace(['/(█|[^.\s0])/', '/[.\s0]/'], [1, 0], implode('', $c));
 			if (isDebug() && !isset($encChars[$id])) { echo 'Unknown Letter: ', $id, "\n"; }
 			$text .= isset($encChars[$id]) ? $encChars[$id] : '?';
 		}
