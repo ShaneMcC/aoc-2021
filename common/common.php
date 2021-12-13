@@ -302,7 +302,7 @@
 		for ($y = 0; $y <= max(array_keys($map)); $y++) {
 			if ($border) { echo '│'; }
 			for ($x = 0; $x <= $width; $x++) {
-				echo isset($map[$y][$x]) ? $map[$y][$x] : '.';
+				echo isset($map[$y][$x]) ? $map[$y][$x] : ' ';
 			}
 			if ($border) { echo '│'; }
 			echo "\n";
