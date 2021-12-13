@@ -34,7 +34,7 @@
 		global $encodedChars;
 
 		$text = '';
-		$charCount = floor((is_array($image[0]) ? count($image[0]) : strlen($image[0])) / $width);
+		$charCount = ceil((is_array($image[0]) ? count($image[0]) : strlen($image[0])) / $width);
 		$chars = [];
 
 		if (!isset($encodedChars[$width][$height])) { return str_repeat('?', $charCount);  }
@@ -42,12 +42,14 @@
 
 		foreach ($image as $row) {
 			for ($i = 0; $i < $charCount; $i++) {
-				$chars[$i][] = is_array($row) ? implode('', array_slice($row, ($i * 5), 5)) : substr($row, ($i * 5), 5);
+				$c = is_array($row) ? implode('', array_slice($row, ($i * $width), $width)) : substr($row, ($i * $width), $width);
+				$c = str_pad(preg_replace(['/(█|[^.\s0])/', '/[.\s0]/'], [1, 0], $c), $width, '0');
+				$chars[$i][] = $c;
 			}
 		}
 
 		foreach ($chars as $c) {
-			$id = preg_replace(['/(█|[^.\s0])/', '/[.\s0]/'], [1, 0], implode('', $c));
+			$id = implode('', $c);
 			if (isDebug() && !isset($encChars[$id])) { echo 'Unknown Letter: ', $id, "\n"; }
 			$text .= isset($encChars[$id]) ? $encChars[$id] : '?';
 		}
