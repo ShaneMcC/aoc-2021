@@ -1,7 +1,7 @@
 <?php
 
-	// This looks like it should be considered to be 4x6, but the `Y` uses all 5
-	// columns, whereas the rest do not.
+	// This looks like it should be considered to be 4x6, but some letters use
+	// all 5 columns (Y), whereas the rest do not.
 	$encodedChars[5][6] = ['011001001010010111101001010010' => 'A',
 	                       '111001001011100100101001011100' => 'B',
 	                       '011001001010000100001001001100' => 'C',
