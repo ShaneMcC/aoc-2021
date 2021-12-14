@@ -21,7 +21,7 @@
 
 	for ($i = 1; $i <= 40; $i++) {
 		$oldPairCounts = $pairCounts;
-
+		$pairCounts = [];
 		foreach ($oldPairCounts as $p => $count) {
 			$insert = $rules[$p];
 			$before = $p[0] . $insert;
@@ -31,12 +31,9 @@
 			if (!isset($pairCounts[$after])) { $pairCounts[$after] = 0; }
 			if (!isset($letters[$insert])) { $letters[$insert] = 0; }
 
-			$pairCounts[$p] -= $count;
 			$pairCounts[$before] += $count;
 			$pairCounts[$after] += $count;
 			$letters[$insert] += $count;
-
-			if ($pairCounts[$p] == 0) { unset($pairCounts[$p]); }
 		}
 
 		if ($i == 10) {
