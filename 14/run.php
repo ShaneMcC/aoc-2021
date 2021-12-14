@@ -7,49 +7,41 @@
 	$rules = [];
 	foreach ($input as $line) {
 		preg_match('#(.*) -> (.*)#SADi', $line, $m);
-		[$all, $matching, $insert] = $m;
-		$rules[$matching] = $insert;
+		[$all, $pair, $insert] = $m;
+		$rules[$pair] = $insert;
 	}
 
-	$pairs = [];
-	$letters = array_count_values(str_split($template));
+	$pairCounts = [];
 	for ($i = 0; $i < strlen($template) - 1; $i++) {
-		if (!isset($pairs[$template[$i] . $template[$i + 1]])) { $pairs[$template[$i] . $template[$i + 1]] = 0; }
-		$pairs[$template[$i] . $template[$i + 1]]++;
+		$pair = $template[$i] . $template[$i + 1];
+		if (!isset($pairCounts[$pair])) { $pairCounts[$pair] = 0; }
+		$pairCounts[$pair]++;
 	}
+	$letters = array_count_values(str_split($template));
 
 	for ($i = 1; $i <= 40; $i++) {
-		$newPairs = $pairs;
+		$oldPairCounts = $pairCounts;
 
-		foreach (array_keys($pairs) as $p) {
-			$before = $p[0] . $rules[$p];
-			$after = $rules[$p] . $p[1];
+		foreach ($oldPairCounts as $p => $count) {
+			$insert = $rules[$p];
+			$before = $p[0] . $insert;
+			$after = $insert . $p[1];
 
-			if (!isset($newPairs[$before])) { $newPairs[$before] = 0; }
-			if (!isset($newPairs[$after])) { $newPairs[$after] = 0; }
-			if (!isset($letters[$rules[$p]])) { $letters[$rules[$p]] = 0; }
+			if (!isset($pairCounts[$before])) { $pairCounts[$before] = 0; }
+			if (!isset($pairCounts[$after])) { $pairCounts[$after] = 0; }
+			if (!isset($letters[$insert])) { $letters[$insert] = 0; }
 
-			$newPairs[$p] -= $pairs[$p];
-			$newPairs[$before] += $pairs[$p];
-			$newPairs[$after] += $pairs[$p];
-			$letters[$rules[$p]] += $pairs[$p];
+			$pairCounts[$p] -= $count;
+			$pairCounts[$before] += $count;
+			$pairCounts[$after] += $count;
+			$letters[$insert] += $count;
 
-			if ($newPairs[$p] == 0) { unset($newPairs[$p]); }
+			if ($pairCounts[$p] == 0) { unset($pairCounts[$p]); }
 		}
-
-		$pairs = $newPairs;
 
 		if ($i == 10) {
-			asort($letters);
-			$keys = array_keys($letters);
-			$part1 = $letters[array_pop($keys)] - $letters[array_shift($keys)];
-			echo 'Part 1: ', $part1, "\n";
-		}
-
-		if ($i == 40) {
-			asort($letters);
-			$keys = array_keys($letters);
-			$part2 = $letters[array_pop($keys)] - $letters[array_shift($keys)];
-			echo 'Part 2: ', $part2, "\n";
+			echo 'Part 1: ', (max($letters) - min($letters)), "\n";
+		} else if ($i == 40) {
+			echo 'Part 2: ', (max($letters) - min($letters)), "\n";
 		}
 	}
