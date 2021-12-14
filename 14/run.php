@@ -27,13 +27,13 @@
 			$before = $p[0] . $insert;
 			$after = $insert . $p[1];
 
+			if (!isset($letters[$insert])) { $letters[$insert] = 0; }
 			if (!isset($pairCounts[$before])) { $pairCounts[$before] = 0; }
 			if (!isset($pairCounts[$after])) { $pairCounts[$after] = 0; }
-			if (!isset($letters[$insert])) { $letters[$insert] = 0; }
 
+			$letters[$insert] += $count;
 			$pairCounts[$before] += $count;
 			$pairCounts[$after] += $count;
-			$letters[$insert] += $count;
 		}
 
 		if ($i == 10) {
