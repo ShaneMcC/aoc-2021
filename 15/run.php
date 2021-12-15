@@ -3,18 +3,23 @@
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$map = getInputMap();
 
-	function findBestPath($map, $start, $end) {
+	function findBestPath($map, $scale = 1) {
 		$check = [];
+
+		$end = [(count($map) * $scale) - 1, (count($map) * $scale) - 1];
 
 		$queue = new SPLPriorityQueue();
 		$queue->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
 
-		$queue->insert([$start], 0);
+		$queue->insert([0, 0], 0);
 
 		$bestPath = NULL;
 		$bestCost = PHP_INT_MAX;
 
 		$bestCosts = [];
+
+		$width = count($map[0]);
+		$height = count($map);
 
 		while (!$queue->isEmpty()) {
 			$next = $queue->extract();
@@ -33,21 +38,28 @@
 				$bestCosts[$y][$x] = $thisCost;
 			}
 
-			foreach (getAdjacentCells($map, $x, $y) as [$ax, $ay]) {
+			$adjacent = [];
+			if (isset($map[($y - 1) % $height][$x % $width])) { $adjacent[] = [$x, $y - 1]; }
+			if (isset($map[$y % $height][($x - 1) % $width])) { $adjacent[] = [$x - 1, $y]; }
+			if (isset($map[$y % $height][($x + 1) % $width])) { $adjacent[] = [$x + 1, $y]; }
+			if (isset($map[($y + 1) % $height][$x % $width])) { $adjacent[] = [$x, $y + 1]; }
+
+			foreach ($adjacent as [$ax, $ay]) {
+				if ($ax > $end[0] || $ay > $end[1]) { continue; }
 				if (in_array([$ax, $ay], $thisPath)) { continue; }
 
 				$newPath = $thisPath;
 				$newPath[] = [$ax, $ay];
-				$newCost = $thisCost + $map[$ay][$ax];
-
-				// echo ' => ', $ax, ', ', $ay, ' = ', $newCost, "\n";
+				$nextCost = $map[$ay % $height][$ax % $width];
+				if (!isset($map[$ay][$ax])) {
+					$nextCost += floor($ay / $height) + floor($ax / $width);
+				}
+				$newCost = $thisCost + ((($nextCost - 1) % 9) + 1);
 
 				if ([$ax, $ay] == $end) {
-					// echo "!";
 					if ($newCost < $bestCost) {
 						$bestPath = $newPath;
 						$bestCost = $newCost;
-						// echo $bestCost, "\n";
 					}
 				} else {
 					$queue->insert($newPath, -$newCost);
@@ -58,8 +70,8 @@
 		return $bestCost;
 	}
 
-	$part1 = findBestPath($map, [0, 0], [count($map) - 1, count($map) - 1]);
+	$part1 = findBestPath($map);
 	echo 'Part 1: ', $part1, "\n";
 
-	// $part2 = -1;
-	// echo 'Part 2: ', $part2, "\n";
+	$part2 = findBestPath($map, 5);
+	echo 'Part 2: ', $part2, "\n";
