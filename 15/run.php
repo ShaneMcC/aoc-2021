@@ -11,31 +11,17 @@
 		$queue = new SPLPriorityQueue();
 		$queue->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
 
-		$queue->insert(['seen' => [0 => [0 => true]], 'last' => [0, 0]], 0);
-
-		$bestCost = PHP_INT_MAX;
-
-		$bestCosts = [];
+		$queue->insert([0, 0], 0);
 
 		$width = count($map[0]);
 		$height = count($map);
 
+		$seen = [0 => [0 => true]];
+
 		while (!$queue->isEmpty()) {
 			$next = $queue->extract();
 			$thisCost = abs($next['priority']);
-			$thisSeen = $next['data']['seen'];
-			[$x, $y] = $next['data']['last'];
-
-			// Are we higher than the best cost in general?
-			if ($thisCost >= $bestCost) { continue; }
-
-			// Are we higher than the best cost to this point?
-			if (isset($bestCosts[$y][$x])) {
-				if ($thisCost >= $bestCosts[$y][$x]) { continue; }
-			} else {
-				if (!isset($bestCosts[$y])) { $bestCosts[$y] = []; }
-				$bestCosts[$y][$x] = $thisCost;
-			}
+			[$x, $y] = $next['data'];
 
 			$adjacent = [];
 			if (isset($map[($y - 1) % $height][$x % $width])) { $adjacent[] = [$x, $y - 1]; }
@@ -45,25 +31,23 @@
 
 			foreach ($adjacent as [$ax, $ay]) {
 				if ($ax > $end[0] || $ay > $end[1]) { continue; }
-				if (isset($thisSeen[$ay][$ax])) { continue; }
+				if (isset($seen[$ay][$ax])) { continue; }
 
-				$newSeen = $thisSeen;
-				if (!isset($newSeen[$ay])) { $newSeen[$ay] = []; }
-				$newSeen[$ay][$ax] = true;
+				if (!isset($seen[$ay])) { $seen[$ay] = []; }
+				$seen[$ay][$ax] = true;
+
 				$nextCost = $map[$ay % $height][$ax % $width] + floor($ay / $height) + floor($ax / $width);
 				$newCost = $thisCost + ((($nextCost - 1) % 9) + 1);
 
 				if ([$ax, $ay] == $end) {
-					if ($newCost < $bestCost) {
-						$bestCost = $newCost;
-					}
+					return $newCost;
 				} else {
-					$queue->insert(['seen' => $thisSeen, 'last' => [$ax, $ay]], -$newCost);
+					$queue->insert([$ax, $ay], -$newCost);
 				}
 			}
 		}
 
-		return $bestCost;
+		return PHP_INT_MAX;
 	}
 
 	$part1 = findBestPathCost($map);
