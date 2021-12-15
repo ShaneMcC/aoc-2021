@@ -3,7 +3,7 @@
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$map = getInputMap();
 
-	function findBestPath($map, $scale = 1) {
+	function findBestPathCost($map, $scale = 1) {
 		$check = [];
 
 		$end = [(count($map) * $scale) - 1, (count($map) * $scale) - 1];
@@ -11,9 +11,8 @@
 		$queue = new SPLPriorityQueue();
 		$queue->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
 
-		$queue->insert(['path' => [0 => [0 => true]], 'last' => [0, 0]], 0);
+		$queue->insert(['seen' => [0 => [0 => true]], 'last' => [0, 0]], 0);
 
-		$bestPath = NULL;
 		$bestCost = PHP_INT_MAX;
 
 		$bestCosts = [];
@@ -24,7 +23,7 @@
 		while (!$queue->isEmpty()) {
 			$next = $queue->extract();
 			$thisCost = abs($next['priority']);
-			$thisPath = $next['data']['path'];
+			$thisSeen = $next['data']['seen'];
 			[$x, $y] = $next['data']['last'];
 
 			// Are we higher than the best cost in general?
@@ -46,21 +45,20 @@
 
 			foreach ($adjacent as [$ax, $ay]) {
 				if ($ax > $end[0] || $ay > $end[1]) { continue; }
-				if (isset($thisPath[$ay][$ax])) { continue; }
+				if (isset($thisSeen[$ay][$ax])) { continue; }
 
-				$newPath = $thisPath;
-				if (!isset($newPath[$ay])) { $newPath[$ay] = []; }
-				$newPath[$ay][$ax] = true;
+				$newSeen = $thisSeen;
+				if (!isset($newSeen[$ay])) { $newSeen[$ay] = []; }
+				$newSeen[$ay][$ax] = true;
 				$nextCost = $map[$ay % $height][$ax % $width] + floor($ay / $height) + floor($ax / $width);
 				$newCost = $thisCost + ((($nextCost - 1) % 9) + 1);
 
 				if ([$ax, $ay] == $end) {
 					if ($newCost < $bestCost) {
-						$bestPath = $newPath;
 						$bestCost = $newCost;
 					}
 				} else {
-					$queue->insert(['path' => $thisPath, 'last' => [$ax, $ay]], -$newCost);
+					$queue->insert(['seen' => $thisSeen, 'last' => [$ax, $ay]], -$newCost);
 				}
 			}
 		}
@@ -68,8 +66,8 @@
 		return $bestCost;
 	}
 
-	$part1 = findBestPath($map);
+	$part1 = findBestPathCost($map);
 	echo 'Part 1: ', $part1, "\n";
 
-	$part2 = findBestPath($map, 5);
+	$part2 = findBestPathCost($map, 5);
 	echo 'Part 2: ', $part2, "\n";
