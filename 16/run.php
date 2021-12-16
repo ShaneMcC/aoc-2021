@@ -11,13 +11,13 @@
 		return $binary;
 	}
 
-	function getPackets($binary, $packetCount = 1) {
+	function getPackets($binary, $maxPacketCount = 1) {
 		$packets = [];
 
 		$binlen = strlen($binary);
 		$ptr = 0;
 
-		 while ($packetCount-- != 0 && $ptr < $binlen) {
+		 while ($maxPacketCount-- != 0 && $ptr < $binlen) {
 			$packet = [];
 			$packet['version'] = base_convert((substr($binary, $ptr, 3)), 2, 10); $ptr += 3;
 			$packet['type'] = base_convert((substr($binary, $ptr, 3)), 2, 10); $ptr += 3;
