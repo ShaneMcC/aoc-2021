@@ -36,7 +36,7 @@
 
 				if ($packet['opLengthType'] == 0) {
 					$packet['opLength'] = base_convert(substr($binary, $ptr, 15), 2, 10); $ptr += 15;
-					[$packet['packets'], $count] = getPackets(substr($binary, $ptr, $packet['opLength']), -1);
+					[$packet['packets'], ] = getPackets(substr($binary, $ptr, $packet['opLength']), -1);
 					$ptr += $packet['opLength'];
 				} else if ($packet['opLengthType'] == 1) {
 					$packet['opCount'] = base_convert(substr($binary, $ptr, 11), 2, 10); $ptr += 11;
@@ -93,6 +93,7 @@
 	}
 
 	[$packets, ] = getPackets(getBinary($input));
+	if (isDebug()) { echo json_encode($packets, JSON_PRETTY_PRINT), "\n"; }
 
 	$part1 = getVersionSum($packets);
 	echo 'Part 1: ', $part1, "\n";
