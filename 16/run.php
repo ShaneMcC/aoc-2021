@@ -51,6 +51,35 @@
 		return [$packets, $ptr];
 	}
 
+	function processPacket($packet) {
+		$values = [];
+		if (isset($packet['packets'])) {
+			foreach ($packet['packets'] as $p) {
+				$values[] = processPacket($p);
+			}
+		}
+
+		if ($packet['type'] == '0') {
+			return array_sum($values);
+		} else if ($packet['type'] == '1') {
+			return array_product($values);
+		} else if ($packet['type'] == '2') {
+			return min($values);
+		} else if ($packet['type'] == '3') {
+			return max($values);
+		} else if ($packet['type'] == '4') {
+			return intval($packet['number']);
+		} else if ($packet['type'] == '5' && count($values) == 2) {
+			return intval($values[0] > $values[1]);
+		} else if ($packet['type'] == '6' && count($values) == 2) {
+			return intval($values[0] < $values[1]);
+		} else if ($packet['type'] == '7' && count($values) == 2) {
+			return intval($values[0] == $values[1]);
+		} else {
+			throw new Exception('Bad packet.');
+		}
+	}
+
 	function getVersionSum($packets) {
 		$sum = 0;
 		foreach ($packets as $packet) {
@@ -63,18 +92,10 @@
 		return $sum;
 	}
 
-// var_dump(getPackets(getBinary('D2FE28')));
-// var_dump(getPackets(getBinary('38006F45291200')));
-// var_dump(getPackets(getBinary('EE00D40C823060')));
-// var_dump(getVersionSum(getPackets(getBinary('8A004A801A8002F478'))));
-// var_dump(getVersionSum(getPackets(getBinary('620080001611562C8802118E34'))));
-// var_dump(getVersionSum(getPackets(getBinary('C0015000016115A2E0802F182340'))));
-// var_dump(getVersionSum(getPackets(getBinary('A0016C880162017C3686B18A3D4780'))));
-
 	[$packets, ] = getPackets(getBinary($input));
 
 	$part1 = getVersionSum($packets);
 	echo 'Part 1: ', $part1, "\n";
 
-	// $part2 = -1;
-	// echo 'Part 2: ', $part2, "\n";
+	$part2 = processPacket($packets[0]);
+	echo 'Part 2: ', $part2, "\n";
