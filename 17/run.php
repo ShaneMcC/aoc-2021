@@ -11,44 +11,40 @@
 	function testProbe($target, $vx, $vy) {
 		$probe = ['x' => 0, 'y' => 0, 'vx' => $vx, 'vy' => $vy];
 
-		$highestY = 0;
 		while (true) {
 			$probe['x'] += $probe['vx'];
 			$probe['y'] += $probe['vy'];
 			if ($probe['vx'] != 0) { $probe['vx'] += $probe['vx'] > 0 ? -1 : 1; }
 			$probe['vy'] += -1;
 
-			$highestY = max($highestY, $probe['y']);
-
 			$inX = $probe['x'] >= $target['x']['start'] && $probe['x'] <= $target['x']['end'];
 			$inY = $probe['y'] >= $target['y']['start'] && $probe['y'] <= $target['y']['end'];
 
 			if ($inX && $inY) {
-				return [true, $highestY];
+				return true;
 			}
 
 			if ($probe['y'] < min($target['y']['start'], $target['y']['end'])) {
-				return [false, -1];
+				return false;
 			}
 
 			if ($probe['vx'] == 0 && !$inX) {
-				return [false, -1];
+				return false;
 			}
 		}
 	}
 
+	$highestY = $target['y']['start'] * ($target['y']['start'] + 1) / 2;
+	echo 'Part 1: ', $highestY, "\n";
+
 	$valid = 0;
-	$highestY = 0;
 	for ($vx = 0; $vx <= $target['x']['end']; $vx++) {
-		for ($vy = $target['y']['start']; $vy <= 300; $vy++) {
-			[$result, $testHighestY] = testProbe($target, $vx, $vy);
-			if ($result) {
-				// echo json_encode([$vx, $vy, $testHighestY, $highestY]), "\n";
-				$highestY = max($highestY, $testHighestY);
+		for ($vy = $target['y']['start']; $vy <= abs($target['y']['start']); $vy++) {
+			if (testProbe($target, $vx, $vy)) {
+				if (isDebug()) { echo $vx, ',', $vy, "\n"; }
 				$valid++;
 			}
 		}
 	}
 
-	echo 'Part 1: ', $highestY, "\n";
 	echo 'Part 2: ', $valid, "\n";
