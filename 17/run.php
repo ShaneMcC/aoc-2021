@@ -20,14 +20,22 @@
 			$inX = $probe['x'] >= $target['x']['start'] && $probe['x'] <= $target['x']['end'];
 			$inY = $probe['y'] >= $target['y']['start'] && $probe['y'] <= $target['y']['end'];
 
+			// Hit.
 			if ($inX && $inY) {
 				return true;
 			}
 
+			// Overshot X
+			if ($probe['x'] > max($target['x']['start'], $target['x']['end'])) {
+				return false;
+			}
+
+			// Overshot Y
 			if ($probe['y'] < min($target['y']['start'], $target['y']['end'])) {
 				return false;
 			}
 
+			// Stopped moving towards X.
 			if ($probe['vx'] == 0 && !$inX) {
 				return false;
 			}
