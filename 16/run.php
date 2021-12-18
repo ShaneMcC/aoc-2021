@@ -3,52 +3,67 @@
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$input = getInputLine();
 
-	function getBinary($hex) {
-		$binary = '';
-		foreach (str_split($hex) as $c) {
-			$binary .= str_pad(base_convert($c, 16, 2), 4, '0', STR_PAD_LEFT);
-		}
-		return $binary;
-	}
+	class PacketStream {
+		private $stream = '';
+		private $ptr = 0;
 
-	function getPackets($binary, $maxPacketCount = 1) {
-		$packets = [];
-
-		$binlen = strlen($binary);
-		$ptr = 0;
-
-		 while ($maxPacketCount-- != 0 && $ptr < $binlen) {
-			$packet = [];
-			$packet['version'] = base_convert((substr($binary, $ptr, 3)), 2, 10); $ptr += 3;
-			$packet['type'] = base_convert((substr($binary, $ptr, 3)), 2, 10); $ptr += 3;
-
-			if ($packet['type'] == 4) { // Number
-				$number = '';
-				while (true) {
-					$bit = substr($binary, $ptr, 1); $ptr += 1;
-					$number .= substr($binary, $ptr, 4); $ptr += 4;
-
-					if ($bit == 0) { break; }
-				}
-				$packet['number'] = base_convert($number, 2, 10);
-			} else { // Operator
-				$packet['opLengthType'] = substr($binary, $ptr, 1); $ptr += 1;
-
-				if ($packet['opLengthType'] == 0) {
-					$packet['opLength'] = base_convert(substr($binary, $ptr, 15), 2, 10); $ptr += 15;
-					[$packet['packets'], ] = getPackets(substr($binary, $ptr, $packet['opLength']), -1);
-					$ptr += $packet['opLength'];
-				} else if ($packet['opLengthType'] == 1) {
-					$packet['opCount'] = base_convert(substr($binary, $ptr, 11), 2, 10); $ptr += 11;
-					[$packet['packets'], $count] = getPackets(substr($binary, $ptr), $packet['opCount']);
-					$ptr += $count;
+		public function __construct($stream, $isBinary = false) {
+			if ($isBinary) {
+				$this->stream = $stream;
+			} else {
+				foreach (str_split($stream) as $c) {
+					$this->stream .= str_pad(base_convert($c, 16, 2), 4, '0', STR_PAD_LEFT);
 				}
 			}
-
-			$packets[] = $packet;
 		}
 
-		return [$packets, $ptr];
+		private function consume($bits) {
+			$this->ptr += $bits;
+			return substr($this->stream, $this->ptr - $bits, $bits);
+		}
+
+		private function hasMore($maxPtr = null) {
+			return $this->ptr < ($maxPtr == null ? strlen($this->stream) : $maxPtr);
+		}
+
+		private function processPackets($maxPacketCount = 1, $maxPtr = null) {
+			$packets = [];
+
+			 while ($maxPacketCount-- != 0 && $this->hasMore($maxPtr)) {
+				$packet = [];
+				$packet['version'] = base_convert($this->consume(3), 2, 10);
+				$packet['type'] = base_convert($this->consume(3), 2, 10);
+
+				if ($packet['type'] == 4) { // Number
+					$number = '';
+					while (true) {
+						$bit = $this->consume(1);
+						$number .= $this->consume(4);
+
+						if ($bit == 0) { break; }
+					}
+					$packet['number'] = base_convert($number, 2, 10);
+				} else { // Operator
+					$packet['opLengthType'] = $this->consume(1);
+
+					if ($packet['opLengthType'] == 0) {
+						$packet['opLength'] = base_convert($this->consume(15), 2, 10);
+						$packet['packets'] = $this->processPackets(-1, $this->ptr + $packet['opLength']);
+					} else if ($packet['opLengthType'] == 1) {
+						$packet['opCount'] = base_convert($this->consume(11), 2, 10);
+						$packet['packets'] = $this->processPackets($packet['opCount']);
+					}
+				}
+
+				$packets[] = $packet;
+			}
+
+			return $packets;
+		}
+
+		public function getPackets() {
+			return $this->processPackets(1, null);
+		}
 	}
 
 	function processPacket($packet) {
@@ -59,24 +74,23 @@
 			}
 		}
 
-		if ($packet['type'] == '0') {
-			return array_sum($values);
-		} else if ($packet['type'] == '1') {
-			return array_product($values);
-		} else if ($packet['type'] == '2') {
-			return min($values);
-		} else if ($packet['type'] == '3') {
-			return max($values);
-		} else if ($packet['type'] == '4') {
-			return intval($packet['number']);
-		} else if ($packet['type'] == '5' && count($values) == 2) {
-			return intval($values[0] > $values[1]);
-		} else if ($packet['type'] == '6' && count($values) == 2) {
-			return intval($values[0] < $values[1]);
-		} else if ($packet['type'] == '7' && count($values) == 2) {
-			return intval($values[0] == $values[1]);
-		} else {
-			throw new Exception('Bad packet.');
+		switch ($packet['type']) {
+			case 0:
+				return array_sum($values);
+			case 1:
+				return array_product($values);
+			case 2:
+				return min($values);
+			case 3:
+				return max($values);
+			case 4:
+				return intval($packet['number']);
+			case 5:
+				return intval($values[0] > $values[1]);
+			case 6:
+				return intval($values[0] < $values[1]);
+			case 7:
+				return intval($values[0] == $values[1]);
 		}
 	}
 
@@ -92,7 +106,7 @@
 		return $sum;
 	}
 
-	[$packets, ] = getPackets(getBinary($input));
+	$packets = (new PacketStream($input))->getPackets();
 	if (isDebug()) { echo json_encode($packets, JSON_PRETTY_PRINT), "\n"; }
 
 	$part1 = getVersionSum($packets);
