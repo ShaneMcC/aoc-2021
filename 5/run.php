@@ -28,21 +28,15 @@
 		[$startX, $startY, $endX, $endY] = $in;
 
 		if ($startX == $endX) {
-			$dir = $startY > $endY ? -1 : 1;
-			$y = $startY;
-			do {
+			for ($y = min($startY, $endY); $y <= max($startY, $endY); $y++) {
 				if (!isset($map[$y][$startX])) { $map[$y][$startX] = 0; }
 				$map[$y][$startX]++;
-				if ($y == $endY) { break; }
-			} while ($y += $dir);
+			}
 		} else if ($startY == $endY) {
-			$dir = $startX > $endX ? -1 : 1;
-			$x = $startX;
-			do {
+			for ($x = min($startX, $endX); $x <= max($startX, $endX); $x++) {
 				if (!isset($map[$startY][$x])) { $map[$startY][$x] = 0; }
 				$map[$startY][$x]++;
-				if ($x == $endX) { break; }
-			} while ($x += $dir);
+			}
 		}
 	}
 
