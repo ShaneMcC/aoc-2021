@@ -147,6 +147,8 @@
 
 	$numbers = [];
 
+	$maxMagnitude = PHP_INT_MIN;
+
 	$final = null;
 	foreach ($input as $line) {
 		if ($final == null) {
@@ -154,15 +156,21 @@
 			continue;
 		}
 
+		// Part 1
 		$new = new SnailNumber('[0, 0]');
 		$new->left = $final;
 		$new->left->parent = $new;
 		$new->right = new SnailNumber($line, $new);
 		$new->reduce();
 		$final = $new;
+
+		// Part 2
+		foreach ($input as $line2) {
+			$test = new SnailNumber('[' . $line . ', ' . $line2 . ']');
+			$test->reduce();
+			$maxMagnitude = max($maxMagnitude, $test->getMagnitude());
+		}
 	}
 
 	echo 'Part 1: ', $final->getMagnitude(), "\n";
-
-	// $part2 = -1;
-	// echo 'Part 2: ', $part2, "\n";
+	echo 'Part 2: ', $maxMagnitude, "\n";
