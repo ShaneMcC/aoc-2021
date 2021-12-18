@@ -159,18 +159,19 @@
 
 	$numbers = [];
 
-	$maxMagnitude = PHP_INT_MIN;
-
+	$maxMagnitude = 0;
 	$final = null;
-	foreach ($input as $line) {
-		$number = new SnailNumber($line);
+	for ($i = 0; $i < count($input); $i++) {
+		$number = new SnailNumber($input[$i]);
 
 		// Part 1
-		$final = ($final == null) ? new SnailNumber($line) : SnailNumber::add($final, $number);
+		$final = ($final == null) ? $number : SnailNumber::add($final, $number);
 
 		// Part 2
-		foreach ($input as $line2) {
-			$maxMagnitude = max($maxMagnitude, SnailNumber::add($number, $line2)->getMagnitude());
+		for ($j = 0; $j < count($input); $j++) {
+			if ($i != $j) {
+				$maxMagnitude = max($maxMagnitude, SnailNumber::add($number, $input[$j])->getMagnitude());
+			}
 		}
 	}
 
