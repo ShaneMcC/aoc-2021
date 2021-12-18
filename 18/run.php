@@ -8,7 +8,7 @@
 		public $left = null;
 		public $right = null;
 
-		public function __construct($line, $parent = null) {
+		public function __construct($line = null, $parent = null) {
 			$this->parent = $parent;
 			$json = json_decode($line);
 
@@ -27,7 +27,7 @@
 			}
 		}
 
-		private function doExplosions($nesting) {
+		private function doExplosions($nesting = 0) {
 			// Need to explode
 			if ($nesting >= 4 && is_numeric($this->left) && is_numeric($this->right)) {
 
@@ -82,53 +82,48 @@
 				return true;
 			}
 
-			foreach ([$this->left, $this->right] as $n) {
-				if ($n instanceof SnailNumber) {
-					if ($n->doExplosions($nesting + 1)) {
-						return true;
-					}
-				}
+			if ($this->left instanceof SnailNumber && $this->left->doExplosions($nesting + 1)) {
+				return true;
+			} else if ($this->right instanceof SnailNumber && $this->right->doExplosions($nesting + 1)) {
+				return true;
 			}
 
 			return false;
 		}
 
-		private function doSplits($nesting) {
-
+		private function doSplits() {
 			if (is_numeric($this->left) && $this->left >= 10) {
-				$newLeft = floor($this->left / 2);
-				$newRight = ceil($this->left / 2);
-				$this->left = new SnailNumber('[' . $newLeft . ',' . $newRight . ']', $this);
+				$sn = new SnailNumber(null, $this);
+				$sn->left = floor($this->left / 2);
+				$sn->right = ceil($this->left / 2);
+				$this->left = $sn;
 				return true;
-			} else if (!is_numeric($this->left) && $this->left->doSplits($nesting + 1)) {
+			} else if (!is_numeric($this->left) && $this->left->doSplits()) {
 				return true;
 			}
 
 			if (is_numeric($this->right) && $this->right >= 10) {
-				$newLeft = floor($this->right / 2);
-				$newRight = ceil($this->right / 2);
-				$this->right = new SnailNumber('[' . $newLeft . ',' . $newRight . ']', $this);
+				$sn = new SnailNumber(null, $this);
+				$sn->left = floor($this->right / 2);
+				$sn->right = ceil($this->right / 2);
+				$this->right = $sn;
 				return true;
-			} else if (!is_numeric($this->right) && $this->right->doSplits($nesting + 1)) {
+			} else if (!is_numeric($this->right) && $this->right->doSplits()) {
 				return true;
 			}
 
 			return false;
-		}
-
-		public function __toString() {
-			return '[' . $this->left . ',' . $this->right . ']';
 		}
 
 		public function reduce() {
 			if (isDebug()) { echo 'Start:         ', $this, "\n"; }
 			while (true) {
-				if ($this->doExplosions(0)) {
+				if ($this->doExplosions()) {
 					if (isDebug()) { echo 'After explode: ', $this, "\n"; }
 					continue;
 				}
 
-				if ($this->doSplits(0)) {
+				if ($this->doSplits()) {
 					if (isDebug()) { echo 'After split:   ', $this, "\n"; }
 
 					continue;
@@ -139,6 +134,10 @@
 			if (isDebug()) { echo 'End:           ', $this, "\n"; }
 		}
 
+		public function __toString() {
+			return '[' . $this->left . ',' . $this->right . ']';
+		}
+
 		public function getMagnitude() {
 			$left = is_numeric($this->left) ? $this->left : $this->left->getMagnitude();
 			$right = is_numeric($this->right) ? $this->right : $this->right->getMagnitude();
@@ -147,7 +146,7 @@
 		}
 
 		public static function add($first, $second) {
-			$new = new SnailNumber('');
+			$new = new SnailNumber();
 			$new->left = new SnailNumber($first, $new);
 			$new->right = new SnailNumber($second, $new);
 
