@@ -12,16 +12,18 @@
 			$this->parent = $parent;
 			$json = json_decode($line);
 
-			if (is_array($json[0])) {
-				$this->left = new SnailNumber(json_encode($json[0]), $this);
-			} else {
-				$this->left = $json[0];
-			}
+			if (is_array($json)) {
+				if (is_array($json[0])) {
+					$this->left = new SnailNumber(json_encode($json[0]), $this);
+				} else {
+					$this->left = $json[0];
+				}
 
-			if (is_array($json[1])) {
-				$this->right = new SnailNumber(json_encode($json[1]), $this);
-			} else {
-				$this->right = $json[1];
+				if (is_array($json[1])) {
+					$this->right = new SnailNumber(json_encode($json[1]), $this);
+				} else {
+					$this->right = $json[1];
+				}
 			}
 		}
 
@@ -143,6 +145,16 @@
 
 			return (3 * $left) + (2 * $right);
 		}
+
+		public static function add($first, $second) {
+			$new = new SnailNumber('');
+			$new->left = new SnailNumber($first, $new);
+			$new->right = new SnailNumber($second, $new);
+
+			$new->reduce();
+
+			return $new;
+		}
 	}
 
 	$numbers = [];
@@ -151,24 +163,14 @@
 
 	$final = null;
 	foreach ($input as $line) {
-		if ($final == null) {
-			$final = new SnailNumber($line);
-			continue;
-		}
+		$number = new SnailNumber($line);
 
 		// Part 1
-		$new = new SnailNumber('[0, 0]');
-		$new->left = $final;
-		$new->left->parent = $new;
-		$new->right = new SnailNumber($line, $new);
-		$new->reduce();
-		$final = $new;
+		$final = ($final == null) ? new SnailNumber($line) : SnailNumber::add($final, $number);
 
 		// Part 2
 		foreach ($input as $line2) {
-			$test = new SnailNumber('[' . $line . ', ' . $line2 . ']');
-			$test->reduce();
-			$maxMagnitude = max($maxMagnitude, $test->getMagnitude());
+			$maxMagnitude = max($maxMagnitude, SnailNumber::add($number, $line2)->getMagnitude());
 		}
 	}
 
