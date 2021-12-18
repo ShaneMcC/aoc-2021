@@ -129,7 +129,7 @@
 				}
 
 				if ($this->doSplits(0)) {
-					if (isDebug()) { echo 'After Split:   ', $this, "\n"; }
+					if (isDebug()) { echo 'After split:   ', $this, "\n"; }
 
 					continue;
 				}
@@ -163,6 +163,7 @@
 	$final = null;
 	for ($i = 0; $i < count($input); $i++) {
 		$number = new SnailNumber($input[$i]);
+		$number->reduce();
 
 		// Part 1
 		$final = ($final == null) ? $number : SnailNumber::add($final, $number);
