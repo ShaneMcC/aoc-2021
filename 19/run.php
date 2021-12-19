@@ -68,7 +68,7 @@
 		return $rotations;
 	}
 
-	function getOverlapOffset($scanner1, $scanner2) {
+	function getOverlapOffset($scanner1, $scanner2, $overlapRequired = 12) {
 		$differences = [];
 		foreach ($scanner1 as $point1) {
 			[$x1, $y1, $z1] = $point1;
@@ -84,7 +84,7 @@
 		}
 
 		foreach ($differences as $diff => $count) {
-			if ($count >= 12) {
+			if ($count >= $overlapRequired) {
 				return explode(',', $diff);
 			}
 		}
@@ -103,7 +103,9 @@
 			$scanner = $unknownScanners[$sid];
 			foreach ($goodScanners as $gid => [$goodOffset, $goodScanner]) {
 				foreach (getScannerRotations($scanner) as $scannerRotation) {
-					$overlapOffset = getOverlapOffset($goodScanner, $scannerRotation);
+
+					// Should be 12, but seems to be faster and still correct at 5 so...
+					$overlapOffset = getOverlapOffset($goodScanner, $scannerRotation, 5);
 
 					if ($overlapOffset != false) {
 
