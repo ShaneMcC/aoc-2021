@@ -1,5 +1,9 @@
 #!/usr/bin/php
 <?php
+	$__CLI['long'] = ['adddebug'];
+	$__CLI['extrahelp'] = [];
+	$__CLI['extrahelp'][] = '      --adddebug           Show addition debug';
+
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$input = getInputLines();
 
@@ -145,16 +149,21 @@
 			return (3 * $left) + (2 * $right);
 		}
 
-		public static function add($first, $second) {
+		public static function add($first, $second, $reduce = true) {
 			$new = new SnailNumber();
 			$new->left = new SnailNumber($first, $new);
 			$new->right = new SnailNumber($second, $new);
 
-			$new->reduce();
+			if ($reduce) {
+				$new->reduce();
+			}
 
 			return $new;
 		}
 	}
+
+	$addDebug = isset($__CLIOPTS['adddebug']);
+	if ($addDebug) { unset($__CLIOPTS['debug']); }
 
 	$numbers = [];
 
@@ -163,6 +172,26 @@
 	for ($i = 0; $i < count($input); $i++) {
 		$number = new SnailNumber($input[$i]);
 		$number->reduce();
+
+		if ($addDebug) {
+
+			if ($final == null) {
+				$final = $number;
+			} else {
+				$new = SnailNumber::add($final, $number, false);
+				echo '   ', $final, "\n";
+				echo ' + ', $number, "\n";
+				echo ' = ', $new, "\n";
+				echo '', "\n";
+
+				$__CLIOPTS['debug'] = true;
+				$new->reduce();
+				unset($__CLIOPTS['debug']);
+				echo '', "\n";
+			}
+
+			continue;
+		}
 
 		// Part 1
 		$final = ($final == null) ? $number : SnailNumber::add($final, $number);
