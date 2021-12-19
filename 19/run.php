@@ -123,6 +123,7 @@
 	}
 
 	$beacons = [];
+	$part2 = 0;
 	foreach ($goodScanners as $i => [$o, $points]) {
 		foreach ($points as $p) {
 			$p[0] += $o[0];
@@ -131,9 +132,11 @@
 
 			$beacons[implode(',', $p)] = true;
 		}
+
+		foreach ($goodScanners as $i => [$o2, $points]) {
+			$part2 = max($part2, abs($o[0] - $o2[0]) + abs($o[1] - $o2[1]) + abs($o[2] - $o2[2]));
+		}
 	}
 
 	echo 'Part 1: ', count($beacons), "\n";
-
-	// $part2 = -1;
-	// echo 'Part 2: ', $part2, "\n";
+	echo 'Part 2: ', $part2, "\n";
