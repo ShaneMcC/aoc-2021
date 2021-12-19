@@ -3,7 +3,7 @@
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$input = getInputLineGroups();
 
-	$scanners = [];
+	$unknownScanners = [];
 	foreach ($input as $group) {
 		$scanner = [];
 		foreach ($group as $line) {
@@ -12,7 +12,7 @@
 				$scanner[] = [(int)$x, (int)$y, (int)$z];
 			}
 		}
-		$scanners[] = $scanner;
+		$unknownScanners[] = $scanner;
 	}
 
 	// My brain can not do 3d space nicely. I hate this.
@@ -56,7 +56,7 @@
 		return $rotations;
 	}
 
-	function getRotations($scanner) {
+	function getScannerRotations($scanner) {
 		$rotations = array_fill(0, 24, []);
 
 		foreach ($scanner as $point) {
@@ -94,32 +94,40 @@
 
 
 	$goodScanners = [];
-	$goodScanners[0] = [[0,0,0], $scanners[0]];
-	unset($scanners[0]);
+	$goodScanners[0] = [[0,0,0], $unknownScanners[0]];
+	unset($unknownScanners[0]);
 
-	while (!empty($scanners)) {
-		foreach ($scanners as $j => $s2) {
-			foreach ($goodScanners as $i => [$o, $s1]) {
-				foreach (getRotations($s2) as $s2r) {
-					$overlapOffset = getOverlapOffset($s1, $s2r);
+	while (!empty($unknownScanners)) {
+		$found = false;
+		foreach (array_keys($unknownScanners) as $sid) {
+			$scanner = $unknownScanners[$sid];
+			foreach ($goodScanners as $gid => [$goodOffset, $goodScanner]) {
+				foreach (getScannerRotations($scanner) as $scannerRotation) {
+					$overlapOffset = getOverlapOffset($goodScanner, $scannerRotation);
 
 					if ($overlapOffset != false) {
 
-						$overlapOffset[0] += $o[0];
-						$overlapOffset[1] += $o[1];
-						$overlapOffset[2] += $o[2];
+						if (isDebug()) { $origOffset = array_map(fn($x) => (int)$x, $overlapOffset); }
 
-						echo 'Scanner ', $j, ' overlaps with ', $i, '. And has overall offset: ', json_encode($overlapOffset), "\n";
-						$goodScanners[$j] = [$overlapOffset, $s2r];
-						unset($scanners[$j]);
+						$overlapOffset[0] += $goodOffset[0];
+						$overlapOffset[1] += $goodOffset[1];
+						$overlapOffset[2] += $goodOffset[2];
 
-						continue 4;
+						if (isDebug()) {
+							echo 'Scanner ', $sid, ' overlaps with ', $gid, ' with offset ', json_encode($origOffset), ' and has overall offset: ', json_encode($overlapOffset), "\n";
+						}
+
+						$goodScanners[$sid] = [$overlapOffset, $scannerRotation];
+						unset($unknownScanners[$sid]);
+						$found = true;
 					}
 				}
 			}
 		}
 
-		die('Unable to find all required overlaps.'."\n");
+		if ($found == false) {
+			die('Unable to find all required overlaps.'."\n");
+		}
 	}
 
 	$beacons = [];
