@@ -120,6 +120,7 @@
 						$goodScanners[$sid] = [$overlapOffset, $scannerRotation];
 						unset($unknownScanners[$sid]);
 						$found = true;
+						break 2;
 					}
 				}
 			}
