@@ -15,45 +15,36 @@
 		$unknownScanners[] = $scanner;
 	}
 
-	// My brain can not do 3d space nicely. I hate this.
-	// Borrowed from:
-	// https://cdn.discordapp.com/attachments/894579870418489385/922008117628272660/unknown.png
 	function getPointRotations($point) {
 		[$x, $y, $z] = $point;
 
-		$rotations = [];
+		$pointRotations = [];
 
-		$rotations[] = [$x, $y, $z];
-		$rotations[] = [-$x, -$y, $z];
-		$rotations[] = [-$x, $y, -$z];
-		$rotations[] = [$x, -$y, -$z];
+		// Rotate around X
+		for ($rx = 1; $rx <= 4; $rx++) {
+			// Rotate around Z
+			for ($rz = 1; $rz <= 4; $rz++) {
+				$pointRotations[] = [$x, $y, $z];
+				[$x, $y] = [-$y, $x];
+			}
+			[$z, $y] = [-$y, $z];
+		}
 
-		$rotations[] = [$y, $z, $x];
-		$rotations[] = [-$y, -$z, $x];
-		$rotations[] = [-$y, $z, -$x];
-		$rotations[] = [$y, -$z, -$x];
+		// Rotate around Y once, then rotate fully around Z again.
+		[$x, $z] = [-$z, $x];
+		for ($rz = 1; $rz <= 4; $rz++) {
+			$pointRotations[] = [$x, $y, $z];
+			[$x, $y] = [-$y, $x];
+		}
+		// Rotate around Y twice more, then rotate fully around Z again
+		[$x, $z] = [-$z, $x];
+		[$x, $z] = [-$z, $x];
+		for ($rz = 1; $rz <= 4; $rz++) {
+			$pointRotations[] = [$x, $y, $z];
+			[$x, $y] = [-$y, $x];
+		}
 
-		$rotations[] = [$z, $x, $y];
-		$rotations[] = [-$z, -$x, $y];
-		$rotations[] = [-$z, $x, -$y];
-		$rotations[] = [$z, -$x, -$y];
-
-		$rotations[] = [$x, $z, -$y];
-		$rotations[] = [$x, -$z, $y];
-		$rotations[] = [-$x, $z, $y];
-		$rotations[] = [-$x, -$z, -$y];
-
-		$rotations[] = [$y, $x, -$z];
-		$rotations[] = [$y, -$x, $z];
-		$rotations[] = [-$y, $x, $z];
-		$rotations[] = [-$y, -$x, -$z];
-
-		$rotations[] = [$z, $y, -$x];
-		$rotations[] = [$z, -$y, $x];
-		$rotations[] = [-$z, $y, $x];
-		$rotations[] = [-$z, -$y, -$x];
-
-		return $rotations;
+		return $pointRotations;
 	}
 
 	function getScannerRotations($scanner) {
