@@ -179,9 +179,13 @@
 				$final = $number;
 			} else {
 				$new = SnailNumber::add($final, $number, false);
+
+				$reduced = SnailNumber::add($final, $number, false);
+				$reduced->reduce();
+
 				echo '   ', $final, "\n";
 				echo ' + ', $number, "\n";
-				echo ' = ', $new, "\n";
+				echo ' = ', $reduced, "\n";
 				echo '', "\n";
 
 				$__CLIOPTS['debug'] = true;
