@@ -11,20 +11,11 @@
 	}
 
 	function getEnhancedCell($image, $enhancement, $x, $y, $default = '.') {
-		$checkCells = [];
-		$checkCells[] = [$x - 1, $y - 1];
-		$checkCells[] = [$x, $y - 1];
-		$checkCells[] = [$x + 1, $y - 1];
-		$checkCells[] = [$x - 1, $y];
-		$checkCells[] = [$x, $y];
-		$checkCells[] = [$x + 1, $y];
-		$checkCells[] = [$x - 1, $y + 1];
-		$checkCells[] = [$x, $y + 1];
-		$checkCells[] = [$x + 1, $y + 1];
-
 		$binary = '';
-		foreach ($checkCells as [$cX, $cY]) {
-			$binary .= (isset($image[$cY][$cX]) ? $image[$cY][$cX] : $default) == '#' ? 1 : 0;
+		for ($cY = $y - 1; $cY <= $y + 1; $cY++) {
+			for ($cX = $x - 1; $cX <= $x + 1; $cX++) {
+				$binary .= (isset($image[$cY][$cX]) ? $image[$cY][$cX] : $default) == '#' ? 1 : 0;
+			}
 		}
 
 		$index = base_convert($binary, 2, 10);
