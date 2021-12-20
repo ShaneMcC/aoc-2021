@@ -10,7 +10,7 @@
 		$image[] = str_split($input[$i]);
 	}
 
-	function getEnhancedCell($image, $enhancement, $x, $y) {
+	function getEnhancedCell($image, $enhancement, $x, $y, $default = '.') {
 		$checkCells = [];
 		$checkCells[] = [$x - 1, $y - 1];
 		$checkCells[] = [$x, $y - 1];
@@ -24,7 +24,8 @@
 
 		$binary = '';
 		foreach ($checkCells as [$cX, $cY]) {
-			$binary .= isset($image[$cY][$cX]) && $image[$cY][$cX] == '#' ? 1 : 0;
+			$check = isset($image[$cY][$cX]) ? $image[$cY][$cX] : $default;
+			$binary .= $check == '#' ? 1 : 0;
 		}
 
 		$index = base_convert($binary, 2, 10);
@@ -32,34 +33,46 @@
 		return $enhancement[$index];
 	}
 
-	$padding = 10;
-	for ($count = 0; $count < 2; $count++) {
-		drawMap($image, true);
+	function countLitPixels($image) {
+		$count = 0;
+		foreach ($image as $row) {
+			$acv = array_count_values($row);
+			$count += isset($acv['#']) ? $acv['#'] : 0;
+		}
+
+		return $count;
+	}
+
+	$default = '.';
+	if (isDebug()) { drawMap($image, true, '0 - ' . $default); }
+	for ($count = 1; $count <= 50; $count++) {
 		[$minX, $minY, $maxX, $maxY] = getBoundingBox($image);
 
 		$newImage = [];
 
-		for ($y = $minY - $padding; $y <= $maxY + $padding; $y++) {
-			for ($x = $minX - $padding; $x <= $maxX + $padding; $x++) {
-				if (!isset($newImage[$y])) { $newImage[$y] = []; }
-				$newImage[$y][$x] = getEnhancedCell($image, $enhancement, $x, $y);
+		for ($y = $minY - 1; $y <= $maxY + 1; $y++) {
+			if (!isset($newImage[$y])) { $newImage[$y] = []; }
+			for ($x = $minX - 1; $x <= $maxX + 1; $x++) {
+				$newImage[$y][$x] = getEnhancedCell($image, $enhancement, $x, $y, $default);
 			}
 		}
 
 		$image = $newImage;
-	}
 
-	drawMap($image, true);
+		// After the first run, all the infinite pixels will now be
+		// $enhancement[0]
+		//
+		// On subsequent runs, they will change depending on what they
+		// are currently.
+		$default = ($default == '.') ? $enhancement[0] : $enhancement[511];
 
-	$part1 = 0;
+		if (isDebug()) { drawMap($image, true, $count . ' - ' . $default); }
 
-	[$minX, $minY, $maxX, $maxY] = getBoundingBox($image);
-	for ($y = $minY + $padding + 1; $y <= $maxY - $padding - 1; $y++) {
-		for ($x = $minX + $padding + 1; $x <= $maxX - $padding - 1; $x++) {
-			if ($image[$y][$x] == '#') {
-				$part1++;
-			}
+		if ($count == 2) {
+			echo 'Part 1: ', countLitPixels($image), "\n";
+		}
+
+		if ($count == 50) {
+			echo 'Part 2: ', countLitPixels($image), "\n";
 		}
 	}
-
-	echo 'Part 1: ', $part1, "\n";
