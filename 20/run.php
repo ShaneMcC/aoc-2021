@@ -36,13 +36,13 @@
 	$default = '.';
 	if (isDebug()) { drawMap($image, true, '0 - ' . $default); }
 	for ($count = 1; $count <= 50; $count++) {
-		[$minX, $minY, $maxX, $maxY] = getBoundingBox($image);
+		[$minX, $minY, $maxX, $maxY] = getBoundingBox($image, 1);
 
 		$newImage = [];
 
-		for ($y = $minY - 1; $y <= $maxY + 1; $y++) {
+		for ($y = $minY; $y <= $maxY; $y++) {
 			if (!isset($newImage[$y])) { $newImage[$y] = []; }
-			for ($x = $minX - 1; $x <= $maxX + 1; $x++) {
+			for ($x = $minX; $x <= $maxX; $x++) {
 				$newImage[$y][$x] = getEnhancedCell($image, $enhancement, $x, $y, $default);
 			}
 		}

@@ -243,7 +243,7 @@
 	 * @param $grid Input grid.
 	 * @return [$minX, $minY, $maxX, $maxY]
 	 */
-	function getBoundingBox($map) {
+	function getBoundingBox($map, $padding = 0) {
 		$minX = $minY = $maxX = $maxY = 0;
 		foreach ($map as $y => $row) {
 			$minY = min($minY, $y);
@@ -254,7 +254,7 @@
 			}
 		}
 
-		return [$minX, $minY, $maxX, $maxY];
+		return [$minX - $padding, $minY - $padding, $maxX + $padding, $maxY + $padding];
 	}
 
 	/**
