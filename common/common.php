@@ -237,6 +237,24 @@
 	}
 
 	/**
+	 * Count cells in a given grid of a given type.
+	 *
+	 * @param $grid Grid to look at
+	 * @param $matching Value to check for
+	 * @return count of $matching in $grid
+	 */
+	function countCells($grid, $matching = '#') {
+		$count = 0;
+
+		foreach ($grid as $row) {
+			$acv = array_count_values($row);
+			$count += isset($acv[$matching]) ? $acv[$matching] : 0;
+		}
+
+		return $count;
+	}
+
+	/**
 	 * Get the bounding box of a standard $grid[$y][$x] array.
 	 * $grid may be sparsely populated.
 	 *

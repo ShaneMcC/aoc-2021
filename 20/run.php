@@ -23,16 +23,6 @@
 		return $enhancement[$index];
 	}
 
-	function countLitPixels($image) {
-		$count = 0;
-		foreach ($image as $row) {
-			$acv = array_count_values($row);
-			$count += isset($acv['#']) ? $acv['#'] : 0;
-		}
-
-		return $count;
-	}
-
 	$default = '.';
 	if (isDebug()) { drawMap($image, true, '0 - ' . $default); }
 	for ($count = 1; $count <= 50; $count++) {
@@ -59,10 +49,10 @@
 		if (isDebug()) { drawMap($image, true, $count . ' - ' . $default); }
 
 		if ($count == 2) {
-			echo 'Part 1: ', countLitPixels($image), "\n";
+			echo 'Part 1: ', countCells($image, '#'), "\n";
 		}
 
 		if ($count == 50) {
-			echo 'Part 2: ', countLitPixels($image), "\n";
+			echo 'Part 2: ', countCells($image, '#'), "\n";
 		}
 	}
