@@ -257,6 +257,14 @@
 		return [$minX, $minY, $maxX, $maxY];
 	}
 
+	/**
+	 * Draw a map on the screen.
+	 *
+	 * @param  $map Map to draw
+	 * @param  $border (Default: false) Include a border
+	 * @param  $title (Default: '') If we are drawing a border, should we also
+	 *                draw a title box?
+	 */
 	function drawMap($map, $border = false, $title = '') {
 		$width = count($map[0]);
 
@@ -282,6 +290,15 @@
 		if ($border) {  echo '┕', str_repeat('━', $width), '┙', "\n"; }
 	}
 
+	/**
+	 * Draw a sparse map on the screen.
+	 *
+	 * @param  $map Map to draw
+	 * @param  $empty (Default: '.') What character to use for the sparse cells
+	 * @param  $border (Default: false) Include a border
+	 * @param  $title (Default: '') If we are drawing a border, should we also
+	 *                draw a title box?
+	 */
 	function drawSparseMap($map, $empty = '.', $border = false, $title = '') {
 		$width = 0;
 		foreach ($map as $m) { $width = max($width, max(array_keys($m))); }
@@ -310,6 +327,14 @@
 		if ($border) {  echo '┕', str_repeat('━', $width + 1), '┙', "\n"; }
 	}
 
+	/**
+	 * Convert a sparse map into a non-sparse map
+	 *
+	 * @param $map Sparse map to convert
+	 * @param $width Width to use for new map
+	 * @param $height Height to use for new map
+	 * @return non-sparse version of $map
+	 */
 	function desparseMap($map, $width = 0, $height = 0) {
 		if ($width <= 0) {
 			foreach ($map as $m) { $width = max($width, max(array_keys($m))); }
