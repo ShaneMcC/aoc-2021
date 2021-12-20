@@ -24,8 +24,7 @@
 
 		$binary = '';
 		foreach ($checkCells as [$cX, $cY]) {
-			$check = isset($image[$cY][$cX]) ? $image[$cY][$cX] : $default;
-			$binary .= $check == '#' ? 1 : 0;
+			$binary .= (isset($image[$cY][$cX]) ? $image[$cY][$cX] : $default) == '#' ? 1 : 0;
 		}
 
 		$index = base_convert($binary, 2, 10);
