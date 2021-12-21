@@ -3,40 +3,32 @@
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$input = getInputLines();
 
-	$players = [];
-	foreach ($input as $line) {
-		preg_match('#Player (.*) starting position: (.*)#SADi', $line, $m);
-		[$all, $player, $position] = $m;
-		$players[$player] = ['position' => $position, 'score' => 0];
-	}
-	$startingPlayers = $players;
+	[$_, $p1Start] = preg_match_return('#Player .* starting position: (.*)#SADi', $input[0]);
+	[$_, $p2Start] = preg_match_return('#Player .* starting position: (.*)#SADi', $input[1]);
 
+	$players = [1 => [$p1Start, 0],
+	            2 => [$p2Start, 0],
+	           ];
 	$die = 0;
 	$rollCount = 0;
 	while (true) {
 		foreach (array_keys($players) as $p) {
-			['position' => $position, 'score' => $score] = $players[$p];
-
-			$roll = 0;
-			$roll += ($die++ % 100) + 1;
-			$roll += ($die++ % 100) + 1;
-			$roll += ($die++ % 100) + 1;
+			[$position, $score] = $players[$p];
 
 			$rollCount += 3;
+			$roll = (($die++ % 100) + 1) + (($die++ % 100) + 1) + (($die++ % 100) + 1);
 
-			$position += $roll;
-			$position = (($position - 1) % 10) + 1;
-
+			$position = (($position + $roll - 1) % 10) + 1;
 			$score += $position;
 
-			$players[$p] = ['position' => $position, 'score' => $score];
+			$players[$p] = [$position, $score];
 
 			if (isDebug()) {
 				echo 'Player ', $p, ' move to space ', $position, ' for a total: ', $score, "\n";
 			}
 
 			if ($score >= 1000) {
-				$part1 = $rollCount * $players[($p == 1 ? 2 : 1)]['score'];
+				$part1 = $rollCount * $players[($p == 1 ? 2 : 1)][1];
 				echo 'Part 1: ', $part1, "\n";
 				break 2;
 			}
@@ -55,10 +47,7 @@
 		}
 	}
 
-	$winStates = [];
-	function getWinCount($p1pos, $p2pos, $p1score = 0, $p2score = 0) {
-		global $winStates, $rollOptions;
-
+	function getWinCount($rollOptions, $p1pos, $p2pos, $p1score = 0, $p2score = 0, &$winStates = []) {
 		if ($p1score >= 21) { return [1, 0]; }
 		if ($p2score >= 21) { return [0, 1]; }
 
@@ -72,7 +61,7 @@
 				$newPos = (($p1pos + $score - 1) % 10) + 1;
 				$newScore = $p1score + $newPos;
 
-				[$winCount2, $winCount1] = getWinCount($p2pos, $newPos, $p2score, $newScore);
+				[$winCount2, $winCount1] = getWinCount($rollOptions, $p2pos, $newPos, $p2score, $newScore, $winStates);
 				$p1wins += $winCount1 * $times;
 				$p2wins += $winCount2 * $times;
 			}
@@ -90,7 +79,7 @@
 		return $winStates[$thisState];
 	}
 
-	$part2 = getWinCount($startingPlayers[1]['position'], $startingPlayers[2]['position']);
+	$part2 = getWinCount($rollOptions, $p1Start, $p2Start);
 
 	if ($part2[0] > $part2[1]) {
 		echo 'Part 2: Player 1 wins with ', $part2[0], ' (vs ', $part2[1], ')', "\n";
