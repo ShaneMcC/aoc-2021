@@ -42,33 +42,17 @@
 
 	echo 'Part 1: ', $count, "\n";
 
-	function getOverlap2($cube1, $cube2) {
-		[$startX1, $endX1, $startY1, $endY1, $startZ1, $endZ1] = $cube1;
-		[$startX2, $endX2, $startY2, $endY2, $startZ2, $endZ2] = $cube2;
-
-		$new = [max($startX1, $startX2), min($endX1, $endX2),
-			    max($startY1, $startY2), min($endY1, $endY2),
-			    max($startZ1, $startZ2), min($endZ1, $endZ2),
-			   ];
-
-		if ($new[0] > $new[1] || $new[2] > $new[3] || $new[4] > $new[5]) {
-			return FALSE;
-		}
-
-		return $new;
-	}
-
 	$cubes = [];
 	foreach ($entries as [$startX, $endX, $startY, $endY, $startZ, $endZ, $type]) {
-		$thisCube = [$startX, $endX, $startY, $endY, $startZ, $endZ, $type];
-
 		$newCubes = [];
-		if ($type == 'on') { $newCubes[] = $thisCube; }
+		if ($type == 'on') { $newCubes[] = [$startX, $endX, $startY, $endY, $startZ, $endZ, $type]; }
 
 		foreach ($cubes as $testCube) {
-			$overlap = getOverlap($thisCube, $testCube);
+			$noOverlap = max($startX, $testCube[0]) > min($endX, $testCube[1])
+			             || max($startY, $testCube[2]) > min($endY, $testCube[3])
+			             || max($startZ, $testCube[4]) > min($endZ, $testCube[5]);
 
-			if ($overlap === FALSE) {
+			if ($noOverlap) {
 				$newCubes[] = $testCube;
 			} else {
 				// Slice the left part of this cube and treat it as a new cube.
