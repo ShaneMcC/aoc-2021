@@ -42,7 +42,7 @@
 
 	echo 'Part 1: ', $count, "\n";
 
-	function getOverlap($cube1, $cube2) {
+	function getOverlap2($cube1, $cube2) {
 		[$startX1, $endX1, $startY1, $endY1, $startZ1, $endZ1] = $cube1;
 		[$startX2, $endX2, $startY2, $endY2, $startZ2, $endZ2] = $cube2;
 
@@ -63,7 +63,7 @@
 		$thisCube = [$startX, $endX, $startY, $endY, $startZ, $endZ, $type];
 
 		$newCubes = [];
-		$newCubes[] = $thisCube;
+		if ($type == 'on') { $newCubes[] = $thisCube; }
 
 		foreach ($cubes as $testCube) {
 			$overlap = getOverlap($thisCube, $testCube);
@@ -123,16 +123,16 @@
 			}
 		}
 
-		$cubes = $newCubes;
+		$cubes = [];
+		foreach ($newCubes as $new) {
+			$cubes[] = $new;
+		}
 	}
 
 	$total = 0;
 	foreach ($cubes as $cube) {
 		[$startX, $endX, $startY, $endY, $startZ, $endZ, $type] = $cube;
-
-		if ($type == 'on') {
-			$total += (abs($startX - $endX - 1)) * (abs($startY - $endY- 1)) * (abs($startZ - $endZ - 1));
-		}
+		$total += (abs($startX - $endX - 1)) * (abs($startY - $endY- 1)) * (abs($startZ - $endZ - 1));
 	}
 
 	echo 'Part 2: ', $total, "\n";
