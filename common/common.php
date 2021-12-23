@@ -286,7 +286,7 @@
 	 *                draw a title box?
 	 */
 	function drawMap($map, $border = false, $title = '') {
-		$width = count($map[0]);
+		$width = is_array($map[0]) ? count($map[0]) : strlen($map[0]);
 
 		if ($border) {
 			echo "\n";
@@ -303,7 +303,7 @@
 		}
 		foreach ($map as $row) {
 			if ($border) { echo '│'; }
-			echo implode('', $row);
+			echo is_array($row) ? implode('', $row) : $row;
 			if ($border) { echo '│'; }
 			echo "\n";
 		}
@@ -321,7 +321,7 @@
 	 */
 	function drawSparseMap($map, $empty = '.', $border = false, $title = '') {
 		$width = 0;
-		foreach ($map as $m) { $width = max($width, max(array_keys($m))); }
+		foreach ($map as $m) { $width = max($width, is_array($m) ? max(array_keys($m)) : strlen($m) - 1); }
 
 		if ($border) {
 			echo "\n";
