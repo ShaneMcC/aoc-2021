@@ -97,14 +97,14 @@
 
 		$seen = [];
 
-		$bestMap = NULL;
-		$bestCost = PHP_INT_MAX;
 		while (!$queue->isEmpty()) {
 			$next = $queue->extract();
 			$thisCost = abs($next['priority']);
 			$map = $next['data'];
 
-			if ($thisCost >= $bestCost) { continue; }
+			if (isFinalLocations($map, $validTargets, $moveCost)) {
+				return $thisCost;
+			}
 
 			if (isDebug()) {
 				echo '==========', "\n";
@@ -119,32 +119,23 @@
 					$cName = $map[$cY][$cX];
 					if (!isset($validTargets[$cName])) { continue; }
 
-					$locations = findMoveableLocations($map, $cLoc, $validTargets, $moveCost);
-					foreach ($locations as $l) {
+					foreach (findMoveableLocations($map, $cLoc, $validTargets, $moveCost) as [[$lX, $lY], $lCost]) {
 						$newMap = $map;
-						[[$lX, $lY], $lCost] = $l;
 						$newMap[$cY][$cX] = '.'; // Old Location
 						$newMap[$lY][$lX] = $cName; // new Location
 						$newCost = ($thisCost + $lCost);
 						$mapHash = implode('', $newMap);
 
-						if ($newCost >= $bestCost) { continue; }
-
-						if (isFinalLocations($newMap, $validTargets, $moveCost)) {
-							$bestCost = $newCost;
-							$bestMap = $newMap;
-						} else {
-							if (!isset($seen[$mapHash]) || $seen[$mapHash] > $newCost) {
-								$seen[$mapHash] = $newCost;
-								$queue->insert($newMap, -$newCost);
-							}
+						if (!isset($seen[$mapHash]) || $seen[$mapHash] > $newCost) {
+							$seen[$mapHash] = $newCost;
+							$queue->insert($newMap, -$newCost);
 						}
 					}
 				}
 			}
 		}
 
-		return $bestCost;
+		return PHP_INT_MAX;
 	}
 
 	$part1 = findAnswer($map, $validTargets, $moveCost);
