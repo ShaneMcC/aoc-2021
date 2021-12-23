@@ -69,20 +69,13 @@
 					$validLocation = $validLocation || ($cell == $myRoomValidTarget);
 
 					if ($validLocation) {
-						$possible[] = [$cell, $cost + 1];
+						$possible[] = [$cell, $cost + $moveCost[$me]];
 					}
-					$check[] = [$cell, $cost + 1];
+					$check[] = [$cell, $cost + $moveCost[$me]];
 				}
 			}
 		}
 
-		// Update costs based on our character type.
-		foreach (array_keys($possible) as $p) {
-			$possible[$p][1] = $possible[$p][1] * $moveCost[$me];
-		}
-
-		// Sort by cost.
-		usort($possible, function ($a, $b) { return ($a[1] <=> $b[1]); });
 		return $possible;
 	}
 
