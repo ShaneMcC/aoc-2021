@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+	$__CLI['long'] = ['part1', 'part2', 'history'];
+	$__CLI['extrahelp'] = [];
+	$__CLI['extrahelp'][] = '      --part1              run part 1';
+	$__CLI['extrahelp'][] = '      --part2              run part 2';
+	$__CLI['extrahelp'][] = '      --history            show history';
 	require_once(dirname(__FILE__) . '/../common/common.php');
 	$map = getInputLines();
 
@@ -92,17 +97,17 @@
 	function findAnswer($map, $validTargets, $moveCost) {
 		$queue = new SPLPriorityQueue();
 		$queue->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
-		$queue->insert($map, 0);
+		$queue->insert([$map, []], 0);
 
 		$seen = [];
 
 		while (!$queue->isEmpty()) {
 			$next = $queue->extract();
 			$thisCost = abs($next['priority']);
-			$map = $next['data'];
+			[$map, $history] = $next['data'];
 
 			if (isFinalLocations($map, $validTargets, $moveCost)) {
-				return $thisCost;
+				return [$thisCost, array_merge($history, [$map])];
 			}
 
 			if (isDebug()) {
@@ -127,31 +132,51 @@
 
 						if (!isset($seen[$mapHash]) || $seen[$mapHash] > $newCost) {
 							$seen[$mapHash] = $newCost;
-							$queue->insert($newMap, -$newCost);
+							$queue->insert([$newMap, array_merge($history, [$map])], -$newCost);
 						}
 					}
 				}
 			}
 		}
 
-		return PHP_INT_MAX;
+		return $keepHistory ? [PHP_INT_MAX, []] : PHP_INT_MAX;
 	}
 
-	$part1 = findAnswer($map, $validTargets, $moveCost);
-	echo 'Part 1: ', $part1, "\n";
+	$runPart1 = isset($__CLIOPTS['part1']) || (!isset($__CLIOPTS['part1']) && !isset($__CLIOPTS['part2']));
+	$runPart2 = isset($__CLIOPTS['part2']) || (!isset($__CLIOPTS['part1']) && !isset($__CLIOPTS['part2']));
+	$showHistory = isset($__CLIOPTS['history']);
 
-	// Modify the map...
-	$map[5] = $map[3];
-	$map[6] = $map[4];
-	$map[3] = '  #D#C#B#A#';
-	$map[4] = '  #D#B#A#C#';
+	if ($runPart1) {
+		[$part1, $history] = findAnswer($map, $validTargets, $moveCost);
 
-	// And the targets...
-	$validTargets['A'] = [[3, 2], [3, 3], [3, 4], [3, 5]];
-	$validTargets['B'] = [[5, 2], [5, 3], [5, 4], [5, 5]];
-	$validTargets['C'] = [[7, 2], [7, 3], [7, 4], [7, 5]];
-	$validTargets['D'] = [[9, 2], [9, 3], [9, 4], [9, 5]];
+		if ($showHistory) {
+			foreach ($history as $h) {
+				drawSparseMap($h, ' ', true);
+			}
+		}
 
-	// And go again...
-	$part2 = findAnswer($map, $validTargets, $moveCost);
-	echo 'Part 2: ', $part2, "\n";
+		echo 'Part 1: ', $part1, "\n";
+	}
+
+	if ($runPart2) {
+		// Modify the map...
+		$map[5] = $map[3];
+		$map[6] = $map[4];
+		$map[3] = '  #D#C#B#A#';
+		$map[4] = '  #D#B#A#C#';
+
+		// And the targets...
+		$validTargets['A'] = [[3, 2], [3, 3], [3, 4], [3, 5]];
+		$validTargets['B'] = [[5, 2], [5, 3], [5, 4], [5, 5]];
+		$validTargets['C'] = [[7, 2], [7, 3], [7, 4], [7, 5]];
+		$validTargets['D'] = [[9, 2], [9, 3], [9, 4], [9, 5]];
+
+		// And go again...
+		[$part2, $history] = findAnswer($map, $validTargets, $moveCost);
+		if ($showHistory) {
+			foreach ($history as $h) {
+				drawSparseMap($h, ' ', true);
+			}
+		}
+		echo 'Part 2: ', $part2, "\n";
+	}
