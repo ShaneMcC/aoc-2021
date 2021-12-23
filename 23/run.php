@@ -24,9 +24,6 @@
 
 		if (!isset($validTargets[$me])) { return []; }
 
-		// Are we in the hallway currently?
-		$inHallway = in_array($from, $validTargets['hallway']);
-
 		// Is my room a valid destination?
 		$myRoomValid = true;
 		$myRoomValidTarget = false;
@@ -45,6 +42,8 @@
 			return [];
 		}
 
+		// Are we in the hallway currently?
+		$inHallway = in_array($from, $validTargets['hallway']);
 
 		$possible = [];
 		$checked = [];
@@ -57,20 +56,20 @@
 				$checked[] = $cell;
 				[$cX, $cY] = $cell;
 				if ($map[$cY][$cX] == '.') {
-					$validLocation = false;
+					$next = [$cell, $cost + $moveCost[$me]];
 
-					// We can move into our target room if it's empty or only contains other instances of me, and we can
-					// only move as far back as possible.
-					$validLocation = $validLocation || ($cell === $myRoomValidTarget);
-
+					// We can move into our target room if it's empty or only
+					// contains other instances of me, and we can only move as
+					// far back as possible. (Checked above, if this is true
+					// then $myRoomValidTarget will be the cell to move into)
+					//
 					// We can move into the hallway if we're not in the hallway
-					// and not in a valid final room.
-					$validLocation = $validLocation || (!$inHallway && $myRoomValidTarget === false && in_array($cell, $validTargets['hallway']));
-
-					if ($validLocation) {
-						$possible[] = [$cell, $cost + $moveCost[$me]];
+					// and not in a valid final room, and we don't have a valid
+					// target for our room.
+					if ($cell === $myRoomValidTarget || (!$inHallway && !$myRoomValid && in_array($cell, $validTargets['hallway']))) {
+						$possible[] = $next;
 					}
-					$check[] = [$cell, $cost + $moveCost[$me]];
+					$check[] = $next;
 				}
 			}
 		}
