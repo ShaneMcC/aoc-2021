@@ -1,32 +1,23 @@
 #!/usr/bin/php
 <?php
 	require_once(dirname(__FILE__) . '/../common/common.php');
-	$map = getInputMap();
+	$map = getInputLines();
 
 	$moveCost = ['A' => 1, 'B' => 10, 'C' => 100, 'D' => 1000];
 
-	$namedLocations = [];
+	$validTargets = [];
 
-	// Rooms, front then rear spaces.
-	$namedLocations['r1'] = [[3, 2], [3, 3]];
-	$namedLocations['r2'] = [[5, 2], [5, 3]];
-	$namedLocations['r3'] = [[7, 2], [7, 3]];
-	$namedLocations['r4'] = [[9, 2], [9, 3]];
-	$namedLocations['hallway'] = [[1, 1],[2, 1],[4, 1],[6, 1],[8, 1],[10, 1],[11, 1]]; // Excluding doorways
+	// Valid hallway spaces.
+	$validTargets['hallway'] = [[1, 1],[2, 1],[4, 1],[6, 1],[8, 1],[10, 1],[11, 1]]; // Excluding doorways
 
-	// A can also move to r1
-	$validTargets['A'] = $namedLocations['r1'];
-	// B can also move to r2
-	$validTargets['B'] = $namedLocations['r2'];
-	// C can also move to r3
-	$validTargets['C'] = $namedLocations['r3'];
-	// D can also move to r4
-	$validTargets['D'] = $namedLocations['r4'];
+	// Targets that the amphipods want to move to (front-to-back)
+	$validTargets['A'] = [[3, 2], [3, 3]];
+	$validTargets['B'] = [[5, 2], [5, 3]];
+	$validTargets['C'] = [[7, 2], [7, 3]];
+	$validTargets['D'] = [[9, 2], [9, 3]];
 
 	// Find all places we can move to and be happy with.
-	function findMoveableLocations($map, $from) {
-		global $namedLocations, $validTargets, $moveCost;
-
+	function findMoveableLocations($map, $from, $validTargets, $moveCost) {
 		[$fX, $fY] = $from;
 
 		$me = $map[$fY][$fX];
@@ -34,7 +25,7 @@
 		if (!isset($validTargets[$me])) { return []; }
 
 		// Are we in the hallway currently?
-		$inHallway = in_array($from, $namedLocations['hallway']);
+		$inHallway = in_array($from, $validTargets['hallway']);
 
 		// Is my room a valid destination?
 		$myRoomValid = true;
@@ -71,7 +62,7 @@
 
 					// We can move into the hallway if we're not in the hallway
 					// and not in a valid final room.
-					$validLocation = $validLocation || (!$inHallway && $myRoomValidTarget == [] && in_array($cell, $namedLocations['hallway']));
+					$validLocation = $validLocation || (!$inHallway && $myRoomValidTarget == [] && in_array($cell, $validTargets['hallway']));
 
 					// We can move into our target room if it's empty or only contains other instances of me, and we can
 					// only move as far back as possible.
@@ -95,10 +86,9 @@
 		return $possible;
 	}
 
-	function isFinalLocations($map) {
-		global $validTargets;
-		foreach ($validTargets as $type => $locations) {
-			foreach ($locations as [$lX, $lY]) {
+	function isFinalLocations($map, $validTargets, $moveCost) {
+		foreach ($moveCost as $type => $cost) {
+			foreach ($validTargets[$type] as [$lX, $lY]) {
 				if (isset($map[$lY][$lX]) && $map[$lY][$lX] != $type) {
 					return false;
 				}
@@ -108,9 +98,7 @@
 		return true;
 	}
 
-	function findAnswer($map) {
-		global $validTargets;
-
+	function findAnswer($map, $validTargets, $moveCost) {
 		$queue = new SPLPriorityQueue();
 		$queue->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
 		$queue->insert($map, 0);
@@ -133,33 +121,31 @@
 				echo '==========', "\n";
 			}
 
-			// Foreach character, add all their possible moves into the queue.
-			$characters = [];
-			foreach (cells($map) as [$cX, $cY, $cell]) {
-				if (!isset($validTargets[$cell])) { continue; }
+			foreach ($map as $cY => $row) {
+				for ($cX = 0; $cX < strlen($row); $cX++) {
+					$cLoc = [$cX, $cY];
+					$cName = $map[$cY][$cX];
+					if (!isset($validTargets[$cName])) { continue; }
 
-				$cLoc = [$cX, $cY];
-				$cName = $map[$cY][$cX];
+					$locations = findMoveableLocations($map, $cLoc, $validTargets, $moveCost);
+					foreach ($locations as $l) {
+						$newMap = $map;
+						[[$lX, $lY], $lCost] = $l;
+						$newMap[$cY][$cX] = '.'; // Old Location
+						$newMap[$lY][$lX] = $cName; // new Location
+						$newCost = ($thisCost + $lCost);
+						$mapHash = implode('', $newMap);
 
-				$locations = findMoveableLocations($map, $cLoc);
-				// echo 'Found ', count($locations), ' locations for character ', $c, ' (', $cName, ') at [', implode(', ', $cLoc), '] to move to: ', "\n";
-				foreach ($locations as $l) {
-					$newMap = $map;
-					[[$lX, $lY], $lCost] = $l;
-					$newMap[$cY][$cX] = '.'; // Old Location
-					$newMap[$lY][$lX] = $cName; // new Location
-					$newCost = ($thisCost + $lCost);
-					$mapHash = json_encode($newMap);
+						if ($newCost >= $bestCost) { continue; }
 
-					if ($newCost >= $bestCost) { continue; }
-
-					if (isFinalLocations($newMap)) {
-						$bestCost = $newCost;
-						$bestMap = $newMap;
-					} else {
-						if (!isset($seen[$mapHash]) || $seen[$mapHash] > $newCost) {
-							$seen[$mapHash] = $newCost;
-							$queue->insert($newMap, -$newCost);
+						if (isFinalLocations($newMap, $validTargets, $moveCost)) {
+							$bestCost = $newCost;
+							$bestMap = $newMap;
+						} else {
+							if (!isset($seen[$mapHash]) || $seen[$mapHash] > $newCost) {
+								$seen[$mapHash] = $newCost;
+								$queue->insert($newMap, -$newCost);
+							}
 						}
 					}
 				}
@@ -169,28 +155,21 @@
 		return $bestCost;
 	}
 
-	$part1 = findAnswer($map);
+	$part1 = findAnswer($map, $validTargets, $moveCost);
 	echo 'Part 1: ', $part1, "\n";
 
 	// Modify the map...
 	$map[5] = $map[3];
 	$map[6] = $map[4];
-	$map[3] = str_split('  #D#C#B#A#');
-	$map[4] = str_split('  #D#B#A#C#');
-
-	// and the rooms...
-	$namedLocations['r1'] = [[3, 2], [3, 3], [3, 4], [3, 5]];
-	$namedLocations['r2'] = [[5, 2], [5, 3], [5, 4], [5, 5]];
-	$namedLocations['r3'] = [[7, 2], [7, 3], [7, 4], [7, 5]];
-	$namedLocations['r4'] = [[9, 2], [9, 3], [9, 4], [9, 5]];
-	$namedLocations['hallway'] = [[1, 1],[2, 1],[4, 1],[6, 1],[8, 1],[10, 1],[11, 1]]; // Excluding doorways
+	$map[3] = '  #D#C#B#A#';
+	$map[4] = '  #D#B#A#C#';
 
 	// And the targets...
-	$validTargets['A'] = $namedLocations['r1'];
-	$validTargets['B'] = $namedLocations['r2'];
-	$validTargets['C'] = $namedLocations['r3'];
-	$validTargets['D'] = $namedLocations['r4'];
+	$validTargets['A'] = [[3, 2], [3, 3], [3, 4], [3, 5]];
+	$validTargets['B'] = [[5, 2], [5, 3], [5, 4], [5, 5]];
+	$validTargets['C'] = [[7, 2], [7, 3], [7, 4], [7, 5]];
+	$validTargets['D'] = [[9, 2], [9, 3], [9, 4], [9, 5]];
 
 	// And go again...
-	$part2 = findAnswer($map);
+	$part2 = findAnswer($map, $validTargets, $moveCost);
 	echo 'Part 2: ', $part2, "\n";
