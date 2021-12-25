@@ -8,17 +8,20 @@
 		$startMap = $map;
 
 		$newMap = $map;
+		$checkDown = [];
 		foreach (cells($map) as [$x, $y, $cell]) {
 			if ($cell == '>') {
 				if ($map[$y][($x + 1) % count($map[$y])] == '.') {
 					$newMap[$y][$x] = '.';
 					$newMap[$y][($x + 1) % count($map[$y])] = $cell;
 				}
+			} else if ($cell == 'v') {
+				$checkDown[] = [$x, $y, $cell];
 			}
 		}
 
 		$map = $newMap;
-		foreach (cells($map) as [$x, $y, $cell]) {
+		foreach ($checkDown as [$x, $y, $cell]) {
 			if ($cell == 'v') {
 				if ($map[($y + 1) % count($map)][$x] == '.') {
 					$newMap[$y][$x] = '.';
