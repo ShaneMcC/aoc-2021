@@ -5,7 +5,7 @@
 
 	$count = 0;
 	while (true) {
-		$startMap = $map;
+		$moved = false;
 
 		$newMap = $map;
 		$checkDown = [];
@@ -14,6 +14,7 @@
 				if ($map[$y][($x + 1) % count($map[$y])] == '.') {
 					$newMap[$y][$x] = '.';
 					$newMap[$y][($x + 1) % count($map[$y])] = $cell;
+					$moved = true;
 				}
 			} else if ($cell == 'v') {
 				$checkDown[] = [$x, $y, $cell];
@@ -26,12 +27,13 @@
 				if ($map[($y + 1) % count($map)][$x] == '.') {
 					$newMap[$y][$x] = '.';
 					$newMap[($y + 1) % count($map)][$x] = $cell;
+					$moved = true;
 				}
 			}
 		}
 		$map = $newMap;
 		$count++;
-		if ($startMap == $map) {
+		if (!$moved) {
 			break;
 		}
 	}
