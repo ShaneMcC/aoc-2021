@@ -69,9 +69,7 @@
 					// then $myRoomValidTarget will be the cell to move into)
 					//
 					// We can move into the hallway if we're not in the hallway
-					// and not in a valid final room, and we don't have a valid
-					// target for our room.
-					if ($cell === $myRoomValidTarget || (!$inHallway && !$myRoomValid && in_array($cell, $validTargets['hallway']))) {
+					if ($cell === $myRoomValidTarget || (!$inHallway && in_array($cell, $validTargets['hallway']))) {
 						$possible[] = $next;
 					}
 					$check[] = $next;
